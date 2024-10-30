@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 - 데브코스 그룹웨어</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMUjzGQ1s/LXz0x0gkPLBxV2ZlT0BkFuc8RxZ6d" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[readonly] {
+            background-color: #e9e9e9;
+            border: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .success-message {
+            color: green;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>회원가입</h1>
+
+    <!-- 회원가입 성공 메시지 -->
+    <div id="successMessage" class="success-message" style="display: none;">
+        <p>회원가입이 완료되었습니다!</p>
+    </div>
+
+    <!-- 회원가입 실패 메시지 -->
+    <div id="errorMessage" class="error-message" style="display: none;">
+        <p id="errorText"></p>
+    </div>
+
+    <!-- 회원가입 폼 -->
+    <form id="signupForm" method="post">
+        <div class="form-group">
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="username">아이디:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="email">이메일:</label>
+            <input type="email" id="email" name="email" th:value="${email}" readonly required>
+        </div>
+        <div class="form-group">
+            <label for="courseName">코스 이름:</label>
+            <input type="text" id="courseName" name="courseName" th:value="${courseName}" readonly required>
+        </div>
+        <!-- 코스 ID는 숨겨진 필드로 전송 -->
+        <input type="hidden" id="courseId" name="courseId" th:value="${courseId}">
+
+        <div class="form-group">
+            <label for="password">비밀번호:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">비밀번호 확인:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+
+        <button type="submit">회원가입</button>
+    </form>
+
+    <div class="login-link">
+        <p>이미 회원이신가요? <a href="https://localhost:3000/groupware-front/">로그인 페이지로 가기</a></p>
+    </div>
+</div>
+
+<script>
+    document.getElementById("signupForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        // 비밀번호와 비밀번호 확인이 일치하는지 확인
+        if (password !== confirmPassword) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        const formData = {
+            name: document.getElementById("name").value,
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            password: password,
+            courseId: document.getElementById("courseId").value // 숨겨진 courseId 값 전송
+        };
+
+        try {
+            const response = await fetch("/api/user/sign-up", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // 성공 시 alert 메시지 표시 및 로그인 페이지로 리다이렉트
+                alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
+                window.location.href = "https://localhost:3000/groupware-front/";
+            } else if (response.status === 400) {
+                // 검증 실패 시, 각 필드에 에러 메시지 표시
+                displayValidationErrors(data.message);
+            } else {
+                // 기타 에러 메시지
+                document.getElementById("errorText").innerText = "오류가 발생했습니다. 다시 시도해주세요.";
+                document.getElementById("errorMessage").style.display = "block";
+            }
+        } catch (error) {
+            alert("오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    });
+
+    function displayValidationErrors(errors) {
+        // 에러 메시지 초기화
+        clearValidationErrors();
+
+        // 각 필드에 대한 에러 메시지를 표시
+        for (const field in errors) {
+            const errorMessage = errors[field];
+            const errorElement = document.createElement("p");
+            errorElement.classList.add("error-message");
+            errorElement.innerText = errorMessage;
+
+            const inputField = document.getElementById(field);
+            if (inputField) {
+                inputField.parentElement.appendChild(errorElement);
+            }
+        }
+    }
+
+    function clearValidationErrors() {
+        const errorMessages = document.querySelectorAll(".error-message");
+        errorMessages.forEach(function(message) {
+            message.remove();
+        });
+    }
+</script>
+
+</body>
+</html>

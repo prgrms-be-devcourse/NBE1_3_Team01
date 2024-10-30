@@ -1,0 +1,58 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>STOMP WebSocket Chat</title>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>-->
+<!--    <script src="chat.js" defer></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>STOMP WebSocket Chat에 오신 것을 환영합니다</h1>-->
+
+<!--<div>-->
+<!--    <h2>사용자 ID 입력</h2>-->
+<!--    <input type="number" id="userIdInput" placeholder="사용자 ID" />-->
+<!--    <button id="loginButton">로그인</button>-->
+<!--</div>-->
+
+<!--<div id="errorMessage" style="color: red;"></div>-->
+
+<!--<script>-->
+<!--    // 사용자 ID를 확인할 API URL-->
+<!--    const userIdCheckUrl = '/channel/check'; // 새로운 엔드포인트 URL-->
+
+<!--    document.getElementById('loginButton').onclick = function() {-->
+<!--        const userId = document.getElementById('userIdInput').value;-->
+
+<!--        if (!userId) {-->
+<!--            document.getElementById('errorMessage').textContent = '사용자 ID를 입력해 주세요.';-->
+<!--            return;-->
+<!--        }-->
+
+<!--        // 데이터베이스에서 사용자 ID가 존재하는지 확인-->
+<!--        fetch(`${userIdCheckUrl}/${userId}`)-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) {-->
+<!--                    throw new Error('사용자를 찾을 수 없습니다.');-->
+<!--                }-->
+<!--                return response.json();-->
+<!--            })-->
+<!--            .then(data => {-->
+<!--                if (data.exists) {-->
+<!--                    // 메인 채팅 인터페이스로 리다이렉트-->
+<!--                    window.location.href = 'chat.html'; // 채팅 페이지 URL로 변경하세요-->
+<!--                } else {-->
+<!--                    document.getElementById('errorMessage').textContent = '존재하지 않는 사용자 ID입니다.';-->
+<!--                }-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                document.getElementById('errorMessage').textContent = error.message;-->
+<!--            });-->
+<!--    };-->
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->

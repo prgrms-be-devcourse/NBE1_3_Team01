@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>오류</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    .error-container {
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      display: inline-block;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #e74c3c;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="error-container">
+  <h1>오류</h1>
+  <p th:text="${error}"></p>
+</div>
+</body>
+</html>
