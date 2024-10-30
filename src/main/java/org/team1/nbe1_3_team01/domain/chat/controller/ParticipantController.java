@@ -13,6 +13,7 @@ import org.team1.nbe1_3_team01.domain.chat.entity.ParticipantPK;
 import org.team1.nbe1_3_team01.domain.chat.service.ParticipantService;
 import org.team1.nbe1_3_team01.domain.chat.service.response.ChannelResponse;
 import org.team1.nbe1_3_team01.domain.chat.service.response.ParticipantResponse;
+import org.team1.nbe1_3_team01.global.util.Response;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,35 +27,25 @@ public class ParticipantController {
 
     // 참여자가 스스로 방 아이디를 치고 들어오는 경우
     @PostMapping("/join")
-    public ResponseEntity<ParticipantResponse> joinChannel(@RequestBody ChannelRequest channelRequest) {
+    public ResponseEntity<Response<ParticipantResponse>> joinChannel(@RequestBody ChannelRequest channelRequest) {
         ParticipantResponse participantResponse = participantService.joinChannel(channelRequest.getChannelId(), channelRequest.getUserId());
-        return ResponseEntity.status(HttpStatus.OK).body(participantResponse);
+        return ResponseEntity.ok().body(Response.success(participantResponse));
     }
 
     // 방장(생성자) -> 참여자를 초대
     @PostMapping("/invite")
     public ResponseEntity<Void> inviteUser(@RequestBody InviteRequest inviteRequest) {
-        try {
             participantService.inviteUser(inviteRequest);
             return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
     }
 
     // 참여자가 속해 있는 채널들 보기
     @GetMapping("/{userId}/show")
-    public ResponseEntity<List<ChannelResponse>> checkUserChannels(@PathVariable("userId") Long userId) {
-        List<Channel> channels = participantService.checkUserChannel(userId);
-
-        List<ChannelResponse> responses = channels.stream()
-                .map(channel -> new ChannelResponse(channel.getId(), channel.getChannelName()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<Response<List<ChannelResponse>>> checkUserChannels(@PathVariable("userId") Long userId) {
+        List<ChannelResponse> responses = participantService.checkUserChannel(userId);
+        return ResponseEntity.ok().body(Response.success(responses));
     }
+
 
     // 참여자가 스스로 방을 나가기 (채널 탈퇴)
     @DeleteMapping("/leave")

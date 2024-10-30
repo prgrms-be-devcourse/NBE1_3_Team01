@@ -12,6 +12,7 @@ import org.team1.nbe1_3_team01.domain.chat.entity.Participant;
 import org.team1.nbe1_3_team01.domain.chat.entity.ParticipantPK;
 import org.team1.nbe1_3_team01.domain.chat.repository.ChannelRepository;
 import org.team1.nbe1_3_team01.domain.chat.repository.ParticipantRepository;
+import org.team1.nbe1_3_team01.domain.chat.service.response.ChannelResponse;
 import org.team1.nbe1_3_team01.domain.chat.service.response.ParticipantResponse;
 import org.team1.nbe1_3_team01.domain.user.entity.User;
 import org.team1.nbe1_3_team01.domain.user.repository.UserRepository;
@@ -83,12 +84,16 @@ public class ParticipantService {
     }
 
     // 참여중인 채널 조회
+    // Service
     @Transactional(readOnly = true)
-    public List<Channel> checkUserChannel(Long userId) {
+    public List<ChannelResponse> checkUserChannel(Long userId) {
         List<Participant> participants = participantRepository.findByUserId(userId);
 
         return participants.stream()
-                .map(Participant::getChannel) // 참여중인 채널 리스트로 반환
+                .map(participant -> {
+                    Channel channel = participant.getChannel();
+                    return new ChannelResponse(channel.getId(), channel.getChannelName());
+                })
                 .collect(Collectors.toList());
     }
 

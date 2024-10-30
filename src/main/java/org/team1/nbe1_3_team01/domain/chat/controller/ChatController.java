@@ -14,6 +14,7 @@ import org.team1.nbe1_3_team01.domain.chat.service.response.ChatMessageResponse;
 import org.team1.nbe1_3_team01.domain.chat.service.response.ChatResponse;
 import org.team1.nbe1_3_team01.domain.chat.controller.request.ChatMessageRequest;
 import org.team1.nbe1_3_team01.domain.chat.service.ChatService;
+import org.team1.nbe1_3_team01.global.util.Response;
 
 import java.util.List;
 
@@ -40,18 +41,17 @@ public class ChatController {
     }
 
     // 채팅방 목록을 불러오기
-    // (지속적으로 업데이트 되는 방식? 계속해서 호출되는 방식? 이라 일단 트랜잭션 안 붙였습니다.)
     @GetMapping("/chats/{channelId}")
-    public ResponseEntity<List<ChatResponse>> getChatsByChannelId(@PathVariable("channelId") Long channelId) {
+    public ResponseEntity<Response<List<ChatResponse>>> getChatsByChannelId(@PathVariable("channelId") Long channelId) {
         List<ChatResponse> chatResponses = chatService.getChatsByChannelId(channelId);
-        return ResponseEntity.ok(chatResponses);
+        return ResponseEntity.ok().body(Response.success(chatResponses));
     }
 
     // 현재 채팅방에 누가 있는지 확인 (카톡처럼 이름으로 반환)
     @GetMapping("/chat/{channelId}/participants")
-    public ResponseEntity<List<String>> getParticipants(@PathVariable Long channelId) {
+    public ResponseEntity<Response<List<String>>> getParticipants(@PathVariable Long channelId) {
         List<String> participantNames = chatService.showParticipant(channelId);
-        return ResponseEntity.ok(participantNames);
+        return ResponseEntity.ok().body(Response.success(participantNames));
     }
 
     // 채팅 수정하기
@@ -59,7 +59,7 @@ public class ChatController {
     public ResponseEntity<?> updateChatMessage(@PathVariable Long channelId, @PathVariable Long chatId,
                                                @RequestParam Long userId, @RequestParam String newChatMessage) {
         Long updateChatPk = chatService.updateMessage(chatId, userId, newChatMessage);
-        return ResponseEntity.ok().body(updateChatPk);
+        return ResponseEntity.ok().body(Response.success(updateChatPk));
     }
 
     // 채팅 삭제하기
