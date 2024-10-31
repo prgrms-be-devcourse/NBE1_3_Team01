@@ -49,7 +49,7 @@ class User private constructor(
         protected set
 
     @Enumerated(EnumType.STRING)
-    var role: Role? = role
+    var role: Role = role
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
