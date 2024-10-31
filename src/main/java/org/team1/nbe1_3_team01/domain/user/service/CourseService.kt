@@ -56,7 +56,7 @@ class CourseService(
             .map(UserBriefResponse::from)
     }
 
-    private fun findById(courseId: Long): Course {
+     fun findById(courseId: Long): Course {
         return courseRepository.findByIdOrNull(courseId)
             ?: throw AppException(ErrorCode.COURSE_NOT_FOUND)
     }
