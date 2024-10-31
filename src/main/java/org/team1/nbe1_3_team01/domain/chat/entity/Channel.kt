@@ -17,7 +17,7 @@ class Channel(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    var id: Long? = null
 
     @CreationTimestamp
     var createdAt: LocalDateTime? = null
@@ -25,6 +25,18 @@ class Channel(
     @OneToMany(mappedBy = "channel", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var participants: MutableList<Participant> = ArrayList()
 
+
+    class Builder {
+        private var channelName: String = ""
+
+        fun channelName(channelName: String) = apply { this.channelName = channelName }
+
+        fun build(): Channel {
+            return Channel(channelName).apply {
+                // 필요 시 추가적인 초기화
+            }
+        }
+    }
 
     fun addParticipant(participant: Participant) {
         participants.add(participant)

@@ -9,10 +9,10 @@ import java.io.Serializable
 @Getter
 class ParticipantPK : Serializable {
     @Column(name = "user_id")
-    private var userId: Long? = null
+    var userId: Long? = null
 
     @Column(name = "channel_id")
-    private var channelId: Long? = null
+     var channelId: Long? = null
 
     constructor()
 

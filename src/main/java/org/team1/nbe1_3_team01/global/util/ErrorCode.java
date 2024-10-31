@@ -48,6 +48,7 @@ public enum ErrorCode {
     NOT_CHAT(HttpStatus.NOT_FOUND, "해당 채널에 대한 채팅방이 존재하지 않습니다."),
     NOT_CHAT_MESSAGE(HttpStatus.NOT_FOUND, "해당 채팅이 없습니다."),
     USER_NOT_AUTHORIZE(HttpStatus.FORBIDDEN, "채팅을 친 사람만 삭제할 수 있습니다."),
+    CHAT_REPOSITORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 저장소가 없습니다."),
 
     //calender
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다."),

@@ -1,3 +1,4 @@
+import com.querydsl.core.types.Projections.constructor
 import jakarta.persistence.*
 import lombok.AccessLevel
 import lombok.Builder
@@ -17,7 +18,7 @@ class Chat(
     var actionType: ChatActionType? = null,
 
     @Column(columnDefinition = "TEXT")
-    var content: String? = null,
+    var content: String,
 
     var createdAt: LocalDateTime? = null,
 
