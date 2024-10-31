@@ -1,106 +1,92 @@
-package org.team1.nbe1_3_team01.domain.user.service;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.user.controller.request.CourseCreateRequest;
-import org.team1.nbe1_3_team01.domain.user.controller.request.CourseUpdateRequest;
-import org.team1.nbe1_3_team01.domain.user.entity.Course;
-import org.team1.nbe1_3_team01.domain.user.repository.CourseRepository;
-import org.team1.nbe1_3_team01.domain.user.repository.UserRepository;
-import org.team1.nbe1_3_team01.domain.user.service.response.CourseDetailsResponse;
-import org.team1.nbe1_3_team01.domain.user.service.response.CourseIdResponse;
-import org.team1.nbe1_3_team01.domain.user.service.response.UserBriefResponse;
-import org.team1.nbe1_3_team01.domain.user.service.response.UserBriefWithRoleResponse;
-import org.team1.nbe1_3_team01.domain.user.util.UserConverter;
-import org.team1.nbe1_3_team01.global.exception.AppException;
-import org.team1.nbe1_3_team01.global.util.SecurityUtil;
-
-import java.util.List;
-
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.*;
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.COURSE_NOT_FOUND;
+package org.team1.nbe1_3_team01.domain.user.service
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.user.controller.request.CourseCreateRequest
+import org.team1.nbe1_3_team01.domain.user.controller.request.CourseUpdateRequest
+import org.team1.nbe1_3_team01.domain.user.entity.Course
+import org.team1.nbe1_3_team01.domain.user.entity.User
+import org.team1.nbe1_3_team01.domain.user.repository.CourseRepository
+import org.team1.nbe1_3_team01.domain.user.repository.UserRepository
+import org.team1.nbe1_3_team01.domain.user.service.response.CourseDetailsResponse
+import org.team1.nbe1_3_team01.domain.user.service.response.CourseIdResponse
+import org.team1.nbe1_3_team01.domain.user.service.response.UserBriefResponse
+import org.team1.nbe1_3_team01.domain.user.service.response.UserBriefWithRoleResponse
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
+import org.team1.nbe1_3_team01.global.util.SecurityUtil
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CourseService {
-    private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
-
+class CourseService(
+    private val courseRepository: CourseRepository,
+    private val userRepository: UserRepository
+) {
     @Transactional
-    public CourseIdResponse createCourse(CourseCreateRequest courseCreateRequest) {
-        if (courseRepository.findByName(courseCreateRequest.name()).isPresent()) {
-            throw new AppException(COURSE_ALREADY_EXISTS);
+    fun createCourse(courseCreateRequest: CourseCreateRequest): CourseIdResponse {
+        courseRepository.findByName(courseCreateRequest.name)?.let {
+            throw AppException(ErrorCode.COURSE_ALREADY_EXISTS)
         }
-        Course course = Course.builder()
-                .name(courseCreateRequest.name())
-                .build();
-        Long id = courseRepository.save(course).getId();
-        return new CourseIdResponse(id);
+        val course: Course = Course.of(name = courseCreateRequest.name)
+        return CourseIdResponse.from(courseRepository.save(course))
     }
 
-    public List<CourseDetailsResponse> getAllCourses() {
+    fun allCourses(): List<CourseDetailsResponse> {
         return courseRepository.findAll()
-                .stream()
-                .map(course -> new CourseDetailsResponse(course.getId(), course.getName()))
-                .toList();
+            .map(CourseDetailsResponse::from)
     }
 
     @Transactional
-    public CourseIdResponse updateCourse(CourseUpdateRequest courseUpdateRequest) {
-        Course course = courseRepository.findById(courseUpdateRequest.id())
-                .orElseThrow(() -> new AppException(COURSE_NOT_FOUND));
-        course.updateName(courseUpdateRequest.name());
-        return new CourseIdResponse(course.getId());
+    fun updateCourse(courseUpdateRequest: CourseUpdateRequest): CourseIdResponse {
+        val course: Course = findById(courseUpdateRequest.id)
+        course.updateName(courseUpdateRequest.name)
+        return CourseIdResponse.from(course)
     }
 
     @Transactional
-    public void deleteCourse(Long courseId){
-        findById(courseId).delete();
+    fun deleteCourse(courseId: Long) {
+        findById(courseId).delete()
     }
 
-    public List<UserBriefResponse> getMyCourseUsers(){
-        Course course = userRepository.findByUsername(SecurityUtil.getCurrentUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다."))
-                .getCourse();
 
-        return mapToUserBriefResponse(course);
-    }
-    public List<UserBriefResponse> getCourseUsers(Long courseId) {
-        Course course = findById(courseId);
-        return mapToUserBriefResponse(course);
-    }
-
-    private List<UserBriefResponse> mapToUserBriefResponse(Course course){
+    fun getCourseUsers(courseId: Long): List<UserBriefResponse> {
+        val course: Course = findById(courseId)
         return userRepository.findByCourse(course)
-                .stream()
-                .map(UserConverter::toUserBriefResponse)
-                .toList();
+            .map(UserBriefResponse::from)
     }
 
-    public Course findById(Long courseId) {
-        return courseRepository.findById(courseId)
-                .orElseThrow(() -> new AppException(COURSE_NOT_FOUND));
+     fun findById(courseId: Long): Course {
+        return courseRepository.findByIdOrNull(courseId)
+            ?: throw AppException(ErrorCode.COURSE_NOT_FOUND)
     }
 
-    public List<UserBriefWithRoleResponse> getCourseUsersWithAdmins(Long courseId) {
-        return mapToUserBriefWithRoleResponse(courseId);
+    fun myCourseUsers(): List<UserBriefResponse> {
+        val user: User = getCurrentUser()
+        val course: Course = user.course ?: throw AppException(ErrorCode.COURSE_NOT_FOUND)
+
+        return userRepository.findByCourse(course)
+            .map(UserBriefResponse::from)
     }
 
-    public List<UserBriefWithRoleResponse> getMyCourseUsersWithAdmins(){
-        Long courseId = userRepository.findByUsername(SecurityUtil.getCurrentUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다."))
-                .getCourse()
-                .getId();
-        return mapToUserBriefWithRoleResponse(courseId);
-    }
 
-    private List<UserBriefWithRoleResponse> mapToUserBriefWithRoleResponse(Long courseId){
+    fun getCourseUsersWithAdmins(courseId: Long): List<UserBriefWithRoleResponse> {
         return userRepository.findUsersAndAdminsByCourseId(courseId)
-                .stream()
-                .map(UserConverter::toUserBriefWithRoleResponse)
-                .toList();
+            .map(UserBriefWithRoleResponse::from)
+    }
+
+    fun myCourseUsersWithAdmins(): List<UserBriefWithRoleResponse> {
+        val course: Course = getCurrentUser().course
+            ?: throw AppException(ErrorCode.COURSE_NOT_FOUND)
+
+        return userRepository.findUsersAndAdminsByCourseId(course.id!!)
+            .map(UserBriefWithRoleResponse::from)
+    }
+
+    private fun getCurrentUser(): User {
+        val username = SecurityUtil.getCurrentUsername()
+        return userRepository.findByUsername(username)
+            ?: throw UsernameNotFoundException("해당 사용자가 존재하지 않습니다.")
     }
 
 }

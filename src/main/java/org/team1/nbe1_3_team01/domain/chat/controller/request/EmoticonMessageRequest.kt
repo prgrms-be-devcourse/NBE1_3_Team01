@@ -1,11 +1,9 @@
-package org.team1.nbe1_3_team01.domain.chat.controller.request;
+package org.team1.nbe1_3_team01.domain.chat.controller.request
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.Builder
+import lombok.Data
 
-@Data
-@Builder
-public class EmoticonMessageRequest {
-    private Long userId;
-    private String emoticonUrl;
-}
+data class EmoticonMessageRequest(
+    val userId: Long,
+    val emoticonUrl: String
+)

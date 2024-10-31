@@ -90,7 +90,7 @@ class UserControllerTest extends IntegrationTestSupport {
         String jsonResponse = result.getResponse().getContentAsString();
         Long resultId = JsonPath.parse(jsonResponse).read("$.result.id", Long.class);
 
-        User savedUser = userRepository.findByUsername(request.username())
+        User savedUser = userRepository.findByUsername(request.username)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 사용자 없음"));
         assertThat(savedUser.getId()).isEqualTo(resultId);
     }
@@ -340,8 +340,8 @@ class UserControllerTest extends IntegrationTestSupport {
         User updateuser = userRepository.findByUsername("userA")
                 .orElseThrow(() -> new UsernameNotFoundException("해당 사용자 없음"));
 
-        assertThat(updateuser.getName()).isEqualTo(request.name());
-        assertThat(passwordEncoder.matches(request.password(), updateuser.getPassword())).isTrue();
+        assertThat(updateuser.getName()).isEqualTo(request.name);
+        assertThat(passwordEncoder.matches(request.password, updateuser.getPassword())).isTrue();
     }
 
     @Test

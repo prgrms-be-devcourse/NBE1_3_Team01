@@ -1,12 +1,9 @@
-package org.team1.nbe1_3_team01.domain.user.repository;
+package org.team1.nbe1_3_team01.domain.user.repository
 
-import org.team1.nbe1_3_team01.domain.user.entity.User;
+import org.team1.nbe1_3_team01.domain.user.entity.User
 
-import java.util.List;
+interface CustomUserRepository {
+    fun findAllUsersByIdList(userIds: List<Long>): List<User>
 
-public interface CustomUserRepository {
-
-    List<User> findAllUsersByIdList(List<Long> userIds);
-
-    List<User> findUsersAndAdminsByCourseId(Long courseId);
+    fun findUsersAndAdminsByCourseId(courseId: Long): List<User>
 }

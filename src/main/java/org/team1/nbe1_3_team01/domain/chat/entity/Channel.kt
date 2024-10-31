@@ -1,41 +1,45 @@
-package org.team1.nbe1_3_team01.domain.chat.entity;
+package org.team1.nbe1_3_team01.domain.chat.entity
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
+import lombok.*
+import org.hibernate.annotations.CreationTimestamp
+import java.time.LocalDateTime
 
 @Entity
-@Getter
 @Table(name = "channel")
+@Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Channel {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+class Channel(
     @Column(length = 50)
     @NotNull
-    private String channelName;
+    var channelName: String
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    var createdAt: LocalDateTime? = null
 
-    @OneToMany(mappedBy = "channel")
-    private List<Participant> participants = new ArrayList<>();
+    @OneToMany(mappedBy = "channel", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    var participants: MutableList<Participant> = ArrayList()
 
-    @Builder
-    private Channel(String channelName) {
-        this.channelName = channelName;
+
+    class Builder {
+        private var channelName: String = ""
+
+        fun channelName(channelName: String) = apply { this.channelName = channelName }
+
+        fun build(): Channel {
+            return Channel(channelName).apply {
+                // 필요 시 추가적인 초기화
+            }
+        }
     }
 
-    public void addParticipant(Participant participant) {
-        this.participants.add(participant);
+    fun addParticipant(participant: Participant) {
+        participants.add(participant)
+        participant.channel = this // 양방향 관계를 위해 채널을 참가자에 설정
     }
 }

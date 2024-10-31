@@ -117,9 +117,9 @@ class UserServiceTest extends IntegrationTestSupport {
         UserIdResponse userIdResponse = userService.update(userUpdateRequest);
 
         //then
-        User user = userRepository.findById(userIdResponse.id())
+        User user = userRepository.findById(userIdResponse.id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        assertThat(user.getName()).isEqualTo(userUpdateRequest.name());
+        assertThat(user.getName()).isEqualTo(userUpdateRequest.name);
     }
 
     @Test
@@ -130,10 +130,10 @@ class UserServiceTest extends IntegrationTestSupport {
         //then
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 없습니다"));
-        assertThat(user.getId()).isEqualTo(userDetailsResponse.id());
-        assertThat(user.getName()).isEqualTo(userDetailsResponse.name());
-        assertThat(user.getUsername()).isEqualTo(userDetailsResponse.username());
-        assertThat(user.getEmail()).isEqualTo(userDetailsResponse.email());
+        assertThat(user.getId()).isEqualTo(userDetailsResponse.id);
+        assertThat(user.getName()).isEqualTo(userDetailsResponse.name);
+        assertThat(user.getUsername()).isEqualTo(userDetailsResponse.username);
+        assertThat(user.getEmail()).isEqualTo(userDetailsResponse.email);
     }
     
 

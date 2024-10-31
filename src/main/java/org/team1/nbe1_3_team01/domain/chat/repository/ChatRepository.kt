@@ -1,12 +1,10 @@
-package org.team1.nbe1_3_team01.domain.chat.repository;
+package org.team1.nbe1_3_team01.domain.chat.repository
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import org.team1.nbe1_3_team01.domain.chat.entity.Chat;
-
-import java.util.List;
+import Chat
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
 
 @Repository
-public interface ChatRepository extends JpaRepository<Chat, Long> {
-    List<Chat> findByParticipant_Channel_Id(Long channelId);
+interface ChatRepository : JpaRepository<Chat?, Long?> {
+    fun findByParticipant_Channel_Id(channelId: Long?): List<Chat?>?
 }

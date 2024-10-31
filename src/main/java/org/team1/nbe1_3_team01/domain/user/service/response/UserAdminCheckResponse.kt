@@ -1,4 +1,13 @@
-package org.team1.nbe1_3_team01.domain.user.service.response;
+package org.team1.nbe1_3_team01.domain.user.service.response
 
-public record UserAdminCheckResponse (boolean isAdmin){
+import org.team1.nbe1_3_team01.domain.user.entity.Role
+import org.team1.nbe1_3_team01.domain.user.entity.User
+
+
+data class UserAdminCheckResponse(val isAdmin: Boolean){
+    companion object {
+        fun from(user: User): UserAdminCheckResponse {
+            return UserAdminCheckResponse(user.role==Role.ADMIN)
+        }
+    }
 }

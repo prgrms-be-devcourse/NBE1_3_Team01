@@ -1,123 +1,145 @@
-package org.team1.nbe1_3_team01.domain.user.entity;
+package org.team1.nbe1_3_team01.domain.user.entity
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLRestriction;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.team1.nbe1_3_team01.domain.board.entity.CourseBoard;
-import org.team1.nbe1_3_team01.domain.board.entity.TeamBoard;
-import org.team1.nbe1_3_team01.domain.board.entity.Comment;
-import org.team1.nbe1_3_team01.domain.chat.entity.Participant;
-import org.team1.nbe1_3_team01.domain.group.entity.Belonging;
-
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*
+import lombok.Builder
+import lombok.Getter
+import org.hibernate.annotations.SQLRestriction
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.team1.nbe1_3_team01.domain.board.entity.Comment
+import org.team1.nbe1_3_team01.domain.board.entity.CourseBoard
+import org.team1.nbe1_3_team01.domain.board.entity.TeamBoard
+import org.team1.nbe1_3_team01.domain.chat.entity.Participant
+import org.team1.nbe1_3_team01.domain.group.entity.Belonging
 
 @Entity
-@Getter
 @Table(name = "users")
 @SQLRestriction("is_delete = false")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+class User private constructor(
+    username: String,
 
+    password: String,
+
+    email: String,
+
+    name: String,
+
+    role: Role,
+
+    course: Course?
+
+) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null
 
-    @Column(length = 20)
-    @NotNull
-    private String username;
+    @Column(length = 20, nullable = false)
+    var username:String = username
+        protected set
 
-    @NotNull
-    private String password;
+    @Column(nullable = false)
+    var password:String = password
+        protected set
 
-    @Column(length = 50)
-    @NotNull
-    private String email;
+    @Column(length = 50, nullable = false)
+    var email: String = email
+        protected set
 
     @Column(length = 10)
-    private String name;
+    var name: String = name
+        protected set
 
     @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @Column(columnDefinition = "TINYINT(1)")
-    private boolean isDelete;
-
-    @OneToMany(mappedBy = "user")
-    private List<Belonging> belongings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<TeamBoard> teamBoards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<CourseBoard> courseBoards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Participant> participants = new ArrayList<>();
+    var role: Role = role
+        protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
-    private Course course;
+    var course: Course? = course
+        protected set
 
+    @Column(columnDefinition = "TINYINT(1)")
+    var isDelete: Boolean? = false
+        protected set
 
-    @Builder
-    private User(String username,
-                 String password,
-                 String email,
-                 String name,
-                 Role role,
-                 Course course
-    ) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.name = name;
-        this.role = role;
-        this.isDelete = false;
-        this.course = course;
+    @OneToMany(mappedBy = "user")
+    val belongings: MutableList<Belonging> = mutableListOf()
+
+    @OneToMany(mappedBy = "user")
+    val comments: MutableList<Comment> = mutableListOf()
+
+    @OneToMany(mappedBy = "user")
+    val teamBoards: MutableList<TeamBoard> = mutableListOf()
+
+    @OneToMany(mappedBy = "user")
+    val courseBoards: MutableList<CourseBoard> = mutableListOf()
+
+    @OneToMany(mappedBy = "user")
+    val participants: MutableList<Participant> = mutableListOf()
+
+    companion object {
+        fun ofUser(
+            username: String,
+            password: String,
+            email: String,
+            name: String,
+            course: Course
+        ): User = User(
+            username = username,
+            password = password,
+            email = email,
+            name = name,
+            role = Role.USER,
+            course = course
+        )
+
+        fun ofAdmin(
+            username: String,
+            password: String,
+            email: String,
+            name: String,
+        ): User = User(
+            username = username,
+            password = password,
+            email = email,
+            name = name,
+            role = Role.ADMIN,
+            course = null
+        )
     }
 
-    public void addTeamBoard(TeamBoard teamBoard) {
-        this.teamBoards.add(teamBoard);
+    fun addTeamBoard(teamBoard: TeamBoard) {
+        teamBoards.add(teamBoard)
     }
 
-    public void addCourseBoard(CourseBoard courseBoard){
-        this.courseBoards.add(courseBoard);
+    fun addCourseBoard(courseBoard: CourseBoard) {
+        courseBoards.add(courseBoard)
     }
 
-    public void addComment(Comment comment) {
-        this.comments.add(comment);
+    fun addComment(comment: Comment) {
+        comments.add(comment)
     }
 
-    public void addParticipant(Participant participant) {
-        this.participants.add(participant);
+    fun addParticipant(participant: Participant) {
+        participants.add(participant)
     }
 
-    public void addBelonging(Belonging belonging) {
-        this.belongings.add(belonging);
+    fun addBelonging(belonging: Belonging) {
+        belongings.add(belonging)
     }
 
-    public void passwordEncode(PasswordEncoder passwordEncoder) {
-        this.password = passwordEncoder.encode(this.password);
+    fun passwordEncode(passwordEncoder: PasswordEncoder) {
+        this.password = passwordEncoder.encode(this.password)
     }
 
-    public void updateName(String name) {
-        this.name = name;
+    fun updateName(name: String) {
+        this.name = name
     }
 
-    public void updatePassword(String password) {
-        this.password = password;
+    fun updatePassword(password: String) {
+        this.password = password
     }
 
-    public void delete(){
-        this.isDelete = true;
+    fun delete() {
+        this.isDelete = true
     }
 }

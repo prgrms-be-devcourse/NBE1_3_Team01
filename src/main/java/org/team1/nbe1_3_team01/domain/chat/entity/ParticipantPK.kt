@@ -1,32 +1,30 @@
-package org.team1.nbe1_3_team01.domain.chat.entity;
+package org.team1.nbe1_3_team01.domain.chat.entity
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import lombok.Getter;
-
-import java.io.Serializable;
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
+import lombok.Getter
+import java.io.Serializable
 
 @Embeddable
 @Getter
-public class ParticipantPK implements Serializable {
+class ParticipantPK : Serializable {
     @Column(name = "user_id")
-    private Long userId;
+    var userId: Long? = null
+
     @Column(name = "channel_id")
-    private Long channelId;
+     var channelId: Long? = null
 
-    public ParticipantPK() {
+    constructor()
+
+    constructor(userId: Long?, channelId: Long?) {
+        this.userId = userId
+        this.channelId = channelId
     }
 
-    public ParticipantPK(Long userId, Long channelId) {
-        this.userId = userId;
-        this.channelId = channelId;
-    }
-
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "ParticipantPK{" +
                 "userId=" + userId +
                 ", channelId=" + channelId +
-                '}';
+                '}'
     }
 }
