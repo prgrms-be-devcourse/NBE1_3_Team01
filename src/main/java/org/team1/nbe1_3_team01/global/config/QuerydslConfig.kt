@@ -2,17 +2,17 @@ package org.team1.nbe1_3_team01.global.config
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class QuerydslConfig {
-    @PersistenceContext
-    private val entityManager: EntityManager? = null
+class QueryDslConfig(
+    val em: EntityManager
+) {
 
     @Bean
-    fun jpaQueryFactory(): JPAQueryFactory {
-        return JPAQueryFactory(entityManager)
+    fun queryFactory(): JPAQueryFactory {
+        return JPAQueryFactory(em)
     }
+
 }
