@@ -1,20 +1,21 @@
-package org.team1.nbe1_3_team01.domain.board.service;
+package org.team1.nbe1_3_team01.domain.board.service
 
-import org.team1.nbe1_3_team01.domain.board.controller.dto.*;
-import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse;
-import org.team1.nbe1_3_team01.global.util.Message;
+import org.team1.nbe1_3_team01.domain.board.controller.dto.BoardDeleteRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardListRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardUpdateRequest
+import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse
+import org.team1.nbe1_3_team01.global.util.Message
 
-import java.util.List;
+interface TeamBoardService {
+    fun getTeamBoardListByType(request: TeamBoardListRequest): List<TeamBoardResponse>
 
-public interface TeamBoardService {
-    List<TeamBoardResponse> getTeamBoardListByType(TeamBoardListRequest request);
+    fun addTeamBoard(request: TeamBoardRequest): Message
 
-    Message addTeamBoard(TeamBoardRequest request);
+    fun getTeamBoardDetailById(teamBoardId: Long): BoardDetailResponse
 
-    BoardDetailResponse getTeamBoardDetailById(Long teamBoardId);
+    fun updateTeamBoard(updateRequest: TeamBoardUpdateRequest): Message
 
-    Message updateTeamBoard(TeamBoardUpdateRequest updateRequest);
-
-    Message deleteTeamBoardById(BoardDeleteRequest deleteRequest);
+    fun deleteTeamBoardById(deleteRequest: BoardDeleteRequest): Message
 }

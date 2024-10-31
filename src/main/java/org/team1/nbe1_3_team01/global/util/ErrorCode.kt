@@ -1,12 +1,13 @@
-package org.team1.nbe1_3_team01.global.util;
+package org.team1.nbe1_3_team01.global.util
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-
+import lombok.RequiredArgsConstructor
+import org.springframework.http.HttpStatus
 
 @RequiredArgsConstructor
-public enum ErrorCode {
+enum class ErrorCode(
+    val status: HttpStatus,
+    val message: String
+) {
     //jwtToken
     TOKEN_TIMEOUT(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다. 새로운 AccessToken을 요청하세요."),
     TOKEN_NOT_EXIST(HttpStatus.FORBIDDEN, "존재하지 않는 토큰입니다."),
@@ -14,7 +15,7 @@ public enum ErrorCode {
     REQUEST_INVALID(HttpStatus.BAD_REQUEST, "잘못된 요청방식입니다."),
 
     //emailToken
-    CODE_NOT_FOUND(HttpStatus.NOT_FOUND,"인증 코드를 찾을 수 없습니다."),
+    CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "인증 코드를 찾을 수 없습니다."),
 
     //attendance
     ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "출결 요청을 찾을 수 없습니다."),
@@ -34,7 +35,6 @@ public enum ErrorCode {
     //comment
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
     CANNOT_MANIPULATE_OTHERS_COMMENT(HttpStatus.FORBIDDEN, "자신이 작성한 댓글이 아닙니다."),
-
 
 
     //chat
@@ -77,20 +77,15 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "%s는 이미 존재하는 아이디입니다."),
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "%s는 이미 존재하는 이메일 입니다."),
     USER_NOT_OWNER(HttpStatus.FORBIDDEN, "팀원은 수행할 수 없습니다."),
-    PASSWORD_NOT_VALID(HttpStatus.BAD_REQUEST, "비밀번호가 올바르지 않습니다."), ;
+    PASSWORD_NOT_VALID(HttpStatus.BAD_REQUEST, "비밀번호가 올바르지 않습니다.")
+    ;
 
-    @Getter
-    private final HttpStatus status;
-    private final String message;
-    private String formattedMessage;    //동적 생성된 메시지를 저장하는 변수
+    var formattedMessage: String? = null
 
-    public ErrorCode withArgs(Object... args) {
-        this.formattedMessage = String.format(this.message, args);
-        return this;
+    fun withArgs(vararg args: Any?): ErrorCode {
+        this.formattedMessage = String.format(message, *args)
+        return this
     }
 
-    public String getMessage() {
-        if(formattedMessage == null) return message;
-        return formattedMessage;
-    }
+    fun getMessage(): String = formattedMessage ?: message
 }

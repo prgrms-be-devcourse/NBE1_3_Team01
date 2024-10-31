@@ -1,28 +1,22 @@
-package org.team1.nbe1_3_team01.domain.board.constants;
+package org.team1.nbe1_3_team01.domain.board.constants
 
-import lombok.Getter;
-import org.team1.nbe1_3_team01.domain.board.exception.NotFoundTypeException;
-
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.CATEGORY_NOT_FOUND;
+import lombok.Getter
+import org.team1.nbe1_3_team01.domain.board.exception.NotFoundTypeException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
 
 @Getter
-public enum CommonBoardType {
-
+enum class CommonBoardType(private val type: String) {
     NOTICE("y"),
     STUDY("n");
 
-    private final String type;
-
-    CommonBoardType(String type) {
-        this.type = type;
-    }
-
-    public static CommonBoardType getType(String type) {
-        for (CommonBoardType enumType : values()) {
-            if(enumType.getType().equals(type)) {
-                return enumType;
+    companion object {
+        fun getType(type: String): CommonBoardType {
+            for (enumType in entries) {
+                if (enumType.type == type) {
+                    return enumType
+                }
             }
+            throw NotFoundTypeException(ErrorCode.CATEGORY_NOT_FOUND)
         }
-        throw new NotFoundTypeException(CATEGORY_NOT_FOUND);
     }
 }

@@ -1,16 +1,13 @@
-package org.team1.nbe1_3_team01.domain.board.comment.service;
+package org.team1.nbe1_3_team01.domain.board.comment.service
 
-import org.team1.nbe1_3_team01.domain.board.comment.controller.dto.CommentRequest;
-import org.team1.nbe1_3_team01.domain.board.comment.service.response.CommentResponse;
-import org.team1.nbe1_3_team01.global.util.Message;
+import org.team1.nbe1_3_team01.domain.board.comment.controller.dto.CommentRequest
+import org.team1.nbe1_3_team01.domain.board.comment.service.response.CommentResponse
+import org.team1.nbe1_3_team01.global.util.Message
 
-import java.util.List;
+interface CommentService {
+    fun getReviewsByPage(boardId: Long?, lastCommentId: Long?): List<CommentResponse?>?
 
-public interface CommentService {
+    fun deleteById(id: Long): Message
 
-    List<CommentResponse> getReviewsByPage(Long boardId, Long page);
-
-    Message deleteById(Long id);
-
-    Message addComment(CommentRequest commentRequest);
+    fun addComment(commentRequest: CommentRequest): Message
 }

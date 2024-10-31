@@ -1,71 +1,64 @@
-package org.team1.nbe1_3_team01.domain.board.service;
+package org.team1.nbe1_3_team01.domain.board.service
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.board.constants.MessageContent;
-import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryDeleteRequest;
-import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryRequest;
-import org.team1.nbe1_3_team01.domain.board.entity.Category;
-import org.team1.nbe1_3_team01.domain.board.repository.CategoryRepository;
-import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse;
-import org.team1.nbe1_3_team01.domain.board.service.valid.CategoryValidator;
-import org.team1.nbe1_3_team01.domain.group.entity.Team;
-import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository;
-import org.team1.nbe1_3_team01.domain.group.repository.TeamRepository;
-import org.team1.nbe1_3_team01.global.exception.AppException;
-import org.team1.nbe1_3_team01.global.util.ErrorCode;
-import org.team1.nbe1_3_team01.global.util.Message;
-import org.team1.nbe1_3_team01.domain.group.entity.Belonging;
-import org.team1.nbe1_3_team01.global.util.SecurityUtil;
-
-import java.util.List;
+import lombok.RequiredArgsConstructor
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.board.constants.MessageContent
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryDeleteRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryRequest
+import org.team1.nbe1_3_team01.domain.board.repository.CategoryRepository
+import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse
+import org.team1.nbe1_3_team01.domain.board.service.valid.CategoryValidator
+import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository
+import org.team1.nbe1_3_team01.domain.group.repository.TeamRepository
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
+import org.team1.nbe1_3_team01.global.util.Message
+import org.team1.nbe1_3_team01.global.util.SecurityUtil
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+class CategoryServiceImpl(
+    private val categoryRepository: CategoryRepository,
+    private val teamRepository: TeamRepository,
+    private val belongingRepository: BelongingRepository,
 
-    private final CategoryRepository categoryRepository;
-    private final TeamRepository teamRepository;
-    private final BelongingRepository belongingRepository;
+) : CategoryService {
 
-    @Override
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getAllCategoryByBelongings(Long teamId) {
-        return categoryRepository.getAllCategoryByTeamId(teamId);
+    override fun getAllCategoryByBelongings(teamId: Long): List<CategoryResponse> {
+        return categoryRepository.getAllCategoryByTeamId(teamId)
     }
 
-    @Override
-    public Message addCategory(CategoryRequest categoryRequest) {
-        Long teamId = categoryRequest.teamId();
-        validTeamLeader(teamId);
+    override fun addCategory(categoryRequest: CategoryRequest): Message {
+        val teamId = categoryRequest.teamId
+        validTeamLeader(teamId)
 
-        Team team = teamRepository.findById(teamId)
-                        .orElseThrow(() -> new AppException(ErrorCode.TEAM_NOT_FOUND));
+        val team = teamRepository.findById(teamId)
+            .orElseThrow { AppException(ErrorCode.TEAM_NOT_FOUND) }
 
-        Category newCategory = categoryRequest.toEntity(team);
-        categoryRepository.save(newCategory);
+        val newCategory = categoryRequest.toEntity(team)
+        categoryRepository.save(newCategory)
 
-        String addMessage = MessageContent.ADD_CATEGORY_COMPLETED.getMessage();
-        return new Message(addMessage);
+        val addMessage = MessageContent.ADD_CATEGORY_COMPLETED.message
+        return Message(addMessage)
     }
 
-    @Override
-    public Message deleteCategory(CategoryDeleteRequest request) {
+    override fun deleteCategory(request: CategoryDeleteRequest): Message {
         //요청한 사용자가 팀장인지?
-        Long teamId = request.teamId();
-        Long categoryId = request.categoryId();
+        val teamId = request.teamId
+        val categoryId = request.categoryId
 
-        validTeamLeader(teamId);
-        int result = categoryRepository.deleteByIdAndTeam_Id(categoryId, teamId);
+        validTeamLeader(teamId)
+        val result = categoryRepository.deleteByIdAndTeam_Id(categoryId, teamId)
 
-        if(result == 0) {
-            throw new AppException(ErrorCode.CATEGORY_NOT_DELETED);
+        if (result == 0) {
+            throw AppException(ErrorCode.CATEGORY_NOT_DELETED)
         }
 
-        String deleteMessage = MessageContent.DELETE_CATEGORY_COMPLETED.getMessage();
-        return new Message(deleteMessage);
+        val deleteMessage = MessageContent.DELETE_CATEGORY_COMPLETED.message
+        return Message(deleteMessage)
     }
 
     /**
@@ -74,13 +67,13 @@ public class CategoryServiceImpl implements CategoryService {
      * @param teamId
      * @return
      */
-    private void validTeamLeader(Long teamId) {
-        String currentUsername = SecurityUtil.getCurrentUsername();
-        Belonging belonging = belongingRepository.findByTeam_IdAndUser_Username(
-                teamId,
-                currentUsername
-        ).orElseThrow(() -> new AppException(ErrorCode.BELONGING_NOT_FOUND));
+    private fun validTeamLeader(teamId: Long) {
+        val currentUsername = SecurityUtil.getCurrentUsername()
+        val belonging = belongingRepository.findByTeam_IdAndUser_Username(
+            teamId,
+            currentUsername
+        ).orElseThrow { AppException(ErrorCode.BELONGING_NOT_FOUND) }
 
-        CategoryValidator.validateTeamLeader(belonging);
+        CategoryValidator.validateTeamLeader(belonging)
     }
 }

@@ -1,17 +1,14 @@
-package org.team1.nbe1_3_team01.domain.board.service;
+package org.team1.nbe1_3_team01.domain.board.service
 
-import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryDeleteRequest;
-import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryRequest;
-import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse;
-import org.team1.nbe1_3_team01.global.util.Message;
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryDeleteRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryRequest
+import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse
+import org.team1.nbe1_3_team01.global.util.Message
 
-import java.util.List;
+interface CategoryService {
+    fun getAllCategoryByBelongings(teamId: Long): List<CategoryResponse>
 
-public interface CategoryService {
+    fun addCategory(categoryRequest: CategoryRequest): Message
 
-    List<CategoryResponse> getAllCategoryByBelongings(Long teamId);
-
-    Message addCategory(CategoryRequest categoryRequest);
-
-    Message deleteCategory(CategoryDeleteRequest id);
+    fun deleteCategory(request: CategoryDeleteRequest): Message
 }

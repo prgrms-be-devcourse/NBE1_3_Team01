@@ -1,12 +1,14 @@
-package org.team1.nbe1_3_team01.global.util;
+package org.team1.nbe1_3_team01.global.util
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.Getter
+import lombok.RequiredArgsConstructor
+import lombok.ToString
 
-@Getter @ToString
+@Getter
+@ToString
 @RequiredArgsConstructor
-public class Message {
+class Message(
+    val value: String
+) {
 
-    private final String value;
 }

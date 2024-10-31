@@ -1,24 +1,21 @@
-package org.team1.nbe1_3_team01.domain.board.comment.controller;
+package org.team1.nbe1_3_team01.domain.board.comment.controller
 
+import lombok.RequiredArgsConstructor
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.team1.nbe1_3_team01.domain.board.comment.controller.dto.CommentRequest
+import org.team1.nbe1_3_team01.domain.board.comment.service.CommentService
+import org.team1.nbe1_3_team01.domain.board.comment.service.response.CommentResponse
+import org.team1.nbe1_3_team01.global.util.Message
+import org.team1.nbe1_3_team01.global.util.Response
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.team1.nbe1_3_team01.domain.board.comment.controller.dto.CommentRequest;
-import org.team1.nbe1_3_team01.domain.board.comment.service.CommentService;
-import org.team1.nbe1_3_team01.domain.board.comment.service.response.CommentResponse;
-import org.team1.nbe1_3_team01.global.util.Message;
-import org.team1.nbe1_3_team01.global.util.Response;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/comments")
-public class CommentController {
-
-    private final CommentService commentService;
-
+class CommentController(
+    private val commentService: CommentService
+) {
     /**
      * 댓글 목록 조회
      * @param commentId 마지막으로 조회된 댓긃 번호
@@ -26,13 +23,13 @@ public class CommentController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<Response<List<CommentResponse>>> getComments(
-            @RequestParam Long commentId,
-            @RequestParam Long boardId
-    ) {
-        List<CommentResponse> reviews = commentService.getReviewsByPage(boardId, commentId);
+    fun getComments(
+        @RequestParam commentId: Long?,
+        @RequestParam boardId: Long?
+    ): ResponseEntity<Response<List<CommentResponse?>?>> {
+        val reviews = commentService.getReviewsByPage(boardId, commentId)
         return ResponseEntity.ok()
-                .body(Response.success(reviews));
+            .body(Response.success(reviews))
     }
 
     /**
@@ -41,12 +38,12 @@ public class CommentController {
      * @return
      */
     @DeleteMapping
-    public ResponseEntity<Response<Message>> deleteComment(
-            @RequestBody Long commentId
-    ) {
-        Message message = commentService.deleteById(commentId);
+    fun deleteComment(
+        @RequestBody commentId: Long
+    ): ResponseEntity<Response<Message>> {
+        val message = commentService.deleteById(commentId)
         return ResponseEntity.ok()
-                .body(Response.success(message));
+            .body(Response.success(message))
     }
 
     /**
@@ -55,11 +52,11 @@ public class CommentController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<Response<Message>> addComment(
-            @RequestBody CommentRequest commentRequest
-    ) {
-        Message message = commentService.addComment(commentRequest);
+    fun addComment(
+        @RequestBody commentRequest: CommentRequest
+    ): ResponseEntity<Response<Message>> {
+        val message = commentService.addComment(commentRequest)
         return ResponseEntity.ok()
-                .body(Response.success(message));
+            .body(Response.success(message))
     }
 }

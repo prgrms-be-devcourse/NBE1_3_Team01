@@ -7,7 +7,7 @@ import org.team1.nbe1_3_team01.domain.user.entity.User;
 
 import java.util.List;
 
-import static org.team1.nbe1_3_team01.domain.user.entity.QUser.user;
+import org.team1.nbe1_3_team01.domain.user.entity.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomUserRepositoryImpl implements CustomUserRepository {

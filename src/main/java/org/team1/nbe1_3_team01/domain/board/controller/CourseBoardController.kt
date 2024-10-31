@@ -1,29 +1,28 @@
-package org.team1.nbe1_3_team01.domain.board.controller;
+package org.team1.nbe1_3_team01.domain.board.controller
 
+import jakarta.validation.Valid
+import lombok.RequiredArgsConstructor
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.team1.nbe1_3_team01.domain.board.controller.dto.BoardDeleteRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CourseBoardListRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CourseBoardRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CourseBoardUpdateRequest
+import org.team1.nbe1_3_team01.domain.board.service.CourseBoardService
+import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
+import org.team1.nbe1_3_team01.global.util.Message
+import org.team1.nbe1_3_team01.global.util.Response
+import java.net.URI
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.team1.nbe1_3_team01.domain.board.controller.dto.*;
-import org.team1.nbe1_3_team01.domain.board.service.CourseBoardService;
-import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse;
-import org.team1.nbe1_3_team01.global.util.Message;
-import org.team1.nbe1_3_team01.global.util.Response;
-
-import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/course/board")
-public class CourseBoardController {
-
-    private final CourseBoardService courseBoardService;
-    private static final String BASE_URL = "/api/course/board";
-
+class CourseBoardController(
+    private val courseBoardService: CourseBoardService
+) {
     /**
      * 공지사항 || 스터디 모집글 목록 조회 api
      * 관리자가 작성하고, 해당 코스 번호에 해당하는 게시글 리스트
@@ -31,12 +30,12 @@ public class CourseBoardController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<Response<List<CourseBoardResponse>>> getCourseBoardList(
-            @ModelAttribute CourseBoardListRequest request
-    ) {
-        List<CourseBoardResponse> commonBoardList = courseBoardService.getCourseBoardList(request);
+    fun getCourseBoardList(
+        @ModelAttribute request: CourseBoardListRequest
+    ): ResponseEntity<Response<List<CourseBoardResponse>>> {
+        val commonBoardList = courseBoardService.getCourseBoardList(request)
         return ResponseEntity.ok()
-                .body(Response.success(commonBoardList));
+            .body(Response.success(commonBoardList))
     }
 
     /**
@@ -46,12 +45,12 @@ public class CourseBoardController {
      * @return
      */
     @GetMapping("/page")
-    public ResponseEntity<Response<List<PagingResponse>>> getPaginationInfo(
-            @ModelAttribute CourseBoardListRequest request
-    ) {
-        List<PagingResponse> response = courseBoardService.getPaginationInfo(request);
+    fun getPaginationInfo(
+        @ModelAttribute request: CourseBoardListRequest
+    ): ResponseEntity<Response<List<PagingResponse?>?>> {
+        val response = courseBoardService.getPaginationInfo(request)
         return ResponseEntity.ok()
-                .body(Response.success(response));
+            .body(Response.success(response))
     }
 
 
@@ -62,12 +61,12 @@ public class CourseBoardController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<Response<Message>> addCommonBoard(
-            @RequestBody @Valid CourseBoardRequest request
-    ) {
-        Message message = courseBoardService.addCourseBoard(request);
+    fun addCommonBoard(
+        @RequestBody request: @Valid CourseBoardRequest
+    ): ResponseEntity<Response<Message>> {
+        val message = courseBoardService.addCourseBoard(request)
         return ResponseEntity.ok()
-                .body(Response.success(message));
+            .body(Response.success(message))
     }
 
     /**
@@ -76,12 +75,12 @@ public class CourseBoardController {
      * @return
      */
     @GetMapping("/{courseBoardId}")
-    public ResponseEntity<Response<BoardDetailResponse>> getBoardDetailById(
-            @PathVariable Long courseBoardId
-    ) {
-        BoardDetailResponse data = courseBoardService.getCourseBoardDetailById(courseBoardId);
+    fun getBoardDetailById(
+        @PathVariable courseBoardId: Long
+    ): ResponseEntity<Response<BoardDetailResponse?>> {
+        val data = courseBoardService.getCourseBoardDetailById(courseBoardId)
         return ResponseEntity.ok()
-                .body(Response.success(data));
+            .body(Response.success(data))
     }
 
     /**
@@ -90,14 +89,14 @@ public class CourseBoardController {
      * @return
      */
     @PatchMapping
-    public ResponseEntity<Response<Message>> updateCourseBoard(
-            @RequestBody @Valid CourseBoardUpdateRequest request
-    ) {
-        URI uri = URI.create(BASE_URL + "/" + request.courseBoardId());
-        Message message = courseBoardService.updateCourseBoard(request);
+    fun updateCourseBoard(
+        @RequestBody request: @Valid CourseBoardUpdateRequest?
+    ): ResponseEntity<Response<Message>> {
+        val uri = URI.create(BASE_URL + "/" + request!!.courseBoardId)
+        val message = courseBoardService.updateCourseBoard(request)
 
         return ResponseEntity.created(uri)
-                .body(Response.success(message));
+            .body(Response.success(message))
     }
 
     /**
@@ -106,11 +105,15 @@ public class CourseBoardController {
      * @return
      */
     @DeleteMapping
-    public ResponseEntity<Response<Message>> deleteCourseBoardById(
-            @RequestBody @Valid BoardDeleteRequest deleteRequest
-    ) {
-        Message message = courseBoardService.deleteCourseBoardById(deleteRequest);
+    fun deleteCourseBoardById(
+        @RequestBody deleteRequest: @Valid BoardDeleteRequest
+    ): ResponseEntity<Response<Message>> {
+        val message = courseBoardService.deleteCourseBoardById(deleteRequest)
         return ResponseEntity.ok()
-                .body(Response.success(message));
+            .body(Response.success(message))
+    }
+
+    companion object {
+        private const val BASE_URL = "/api/course/board"
     }
 }

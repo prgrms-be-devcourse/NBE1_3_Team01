@@ -1,7 +1,7 @@
 package org.team1.nbe1_3_team01.domain.attendance.repository;
 
-import static org.team1.nbe1_3_team01.domain.attendance.entity.QAttendance.attendance;
-import static org.team1.nbe1_3_team01.domain.user.entity.QUser.user;
+import org.team1.nbe1_3_team01.domain.attendance.entity.QAttendance.attendance;
+import org.team1.nbe1_3_team01.domain.user.entity.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;

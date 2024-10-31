@@ -1,26 +1,26 @@
-package org.team1.nbe1_3_team01.domain.board.controller;
+package org.team1.nbe1_3_team01.domain.board.controller
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.team1.nbe1_3_team01.domain.board.controller.dto.*;
-import org.team1.nbe1_3_team01.domain.board.service.TeamBoardService;
-import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse;
-import org.team1.nbe1_3_team01.global.util.Message;
-import org.team1.nbe1_3_team01.global.util.Response;
-
-import java.net.URI;
-import java.util.List;
+import jakarta.validation.Valid
+import lombok.RequiredArgsConstructor
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.team1.nbe1_3_team01.domain.board.controller.dto.BoardDeleteRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardListRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardUpdateRequest
+import org.team1.nbe1_3_team01.domain.board.service.TeamBoardService
+import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse
+import org.team1.nbe1_3_team01.global.util.Message
+import org.team1.nbe1_3_team01.global.util.Response
+import java.net.URI
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/team/board")
-public class TeamBoardController {
-
-    private final TeamBoardService teamBoardService;
-    private static final String BASE_URL = "/api/team/board";
+class TeamBoardController(
+    private val teamBoardService: TeamBoardService
+) {
 
 
     /**
@@ -30,12 +30,12 @@ public class TeamBoardController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<Response<List<TeamBoardResponse>>> getTeamBoardList(
-            @ModelAttribute TeamBoardListRequest request
-    ) {
-        List<TeamBoardResponse> boardList = teamBoardService.getTeamBoardListByType(request);
+    fun getTeamBoardList(
+        @ModelAttribute request: TeamBoardListRequest?
+    ): ResponseEntity<Response<List<TeamBoardResponse?>?>> {
+        val boardList = teamBoardService.getTeamBoardListByType(request!!)
         return ResponseEntity.ok()
-                .body(Response.success(boardList));
+            .body(Response.success(boardList))
     }
 
     /**
@@ -44,12 +44,12 @@ public class TeamBoardController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<Response<Message>> addTeamBoard(
-            @RequestBody @Valid TeamBoardRequest request
-    ) {
-        Message message = teamBoardService.addTeamBoard(request);
+    fun addTeamBoard(
+        @RequestBody request: @Valid TeamBoardRequest?
+    ): ResponseEntity<Response<Message>> {
+        val message = teamBoardService.addTeamBoard(request!!)
         return ResponseEntity.ok()
-                .body(Response.success(message));
+            .body(Response.success(message))
     }
 
     /**
@@ -58,12 +58,12 @@ public class TeamBoardController {
      * @return
      */
     @GetMapping("/{teamBoardId}")
-    public ResponseEntity<Response<BoardDetailResponse>> getBoardDetailById(
-            @PathVariable Long teamBoardId
-    ) {
-        BoardDetailResponse data = teamBoardService.getTeamBoardDetailById(teamBoardId);
+    fun getBoardDetailById(
+        @PathVariable teamBoardId: Long
+    ): ResponseEntity<Response<BoardDetailResponse?>> {
+        val data = teamBoardService.getTeamBoardDetailById(teamBoardId)
         return ResponseEntity.ok()
-                .body(Response.success(data));
+            .body(Response.success(data))
     }
 
     /**
@@ -72,14 +72,14 @@ public class TeamBoardController {
      * @return
      */
     @PatchMapping
-    public ResponseEntity<Response<Message>> updateTeamBoard(
-            @RequestBody @Valid TeamBoardUpdateRequest updateRequest
-    ) {
-        Message message = teamBoardService.updateTeamBoard(updateRequest);
-        URI uri = URI.create(BASE_URL + "/" + updateRequest.teamBoardId());
+    fun updateTeamBoard(
+        @RequestBody updateRequest: @Valid TeamBoardUpdateRequest?
+    ): ResponseEntity<Response<Message>> {
+        val message = teamBoardService.updateTeamBoard(updateRequest!!)
+        val uri = URI.create(BASE_URL + "/" + updateRequest.teamBoardId)
 
         return ResponseEntity.created(uri)
-                .body(Response.success(message));
+            .body(Response.success(message))
     }
 
     /**
@@ -88,11 +88,15 @@ public class TeamBoardController {
      * @return
      */
     @DeleteMapping
-    public ResponseEntity<Response<Message>> deleteCourseBoardById(
-            @RequestBody @Valid BoardDeleteRequest deleteRequest
-    ) {
-        Message message = teamBoardService.deleteTeamBoardById(deleteRequest);
+    fun deleteCourseBoardById(
+        @RequestBody deleteRequest: @Valid BoardDeleteRequest?
+    ): ResponseEntity<Response<Message>> {
+        val message = teamBoardService.deleteTeamBoardById(deleteRequest!!)
         return ResponseEntity.ok()
-                .body(Response.success(message));
+            .body(Response.success(message))
+    }
+
+    companion object {
+        private const val BASE_URL = "/api/team/board"
     }
 }

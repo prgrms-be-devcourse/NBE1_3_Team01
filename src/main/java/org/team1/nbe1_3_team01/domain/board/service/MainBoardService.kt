@@ -1,10 +1,10 @@
-package org.team1.nbe1_3_team01.domain.board.service;
+package org.team1.nbe1_3_team01.domain.board.service
 
-import org.team1.nbe1_3_team01.domain.board.service.response.MainCourseBoardListResponse;
+import org.team1.nbe1_3_team01.domain.board.service.response.MainCourseBoardListResponse
 
-public interface MainBoardService {
+interface MainBoardService {
 
-    MainCourseBoardListResponse getCourseBoardListForMain();
+    val courseBoardListForMain: MainCourseBoardListResponse
 
-    MainCourseBoardListResponse getMainCourseBoardForAdmin(Long courseId);
+    fun getMainCourseBoardForAdmin(courseId: Long): MainCourseBoardListResponse
 }

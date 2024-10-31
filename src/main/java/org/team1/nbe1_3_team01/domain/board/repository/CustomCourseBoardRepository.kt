@@ -1,19 +1,15 @@
-package org.team1.nbe1_3_team01.domain.board.repository;
+package org.team1.nbe1_3_team01.domain.board.repository
 
-import org.team1.nbe1_3_team01.domain.board.constants.CommonBoardType;
-import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse;
+import org.team1.nbe1_3_team01.domain.board.constants.CommonBoardType
+import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
+import java.util.*
 
-import java.util.List;
-import java.util.Optional;
+interface CustomCourseBoardRepository {
+    fun findAllCourseBoard(type: CommonBoardType, courseId: Long, boardId: Long?): List<CourseBoardResponse>
 
-public interface CustomCourseBoardRepository {
+    fun findCourseBoardDetailById(courseId: Long): Optional<BoardDetailResponse>
 
-    List<CourseBoardResponse> findAllCourseBoard(CommonBoardType type, Long courseId, Long boardId);
-
-    Optional<BoardDetailResponse> findCourseBoardDetailById(Long id);
-
-    List<PagingResponse> findPaginationInfo(Long courseId, CommonBoardType boardType);
-
+    fun findPaginationInfo(courseId: Long, boardType: CommonBoardType): List<PagingResponse?>?
 }

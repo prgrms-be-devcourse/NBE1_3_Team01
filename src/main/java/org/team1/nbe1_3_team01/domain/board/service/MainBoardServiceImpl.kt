@@ -1,65 +1,62 @@
-package org.team1.nbe1_3_team01.domain.board.service;
+package org.team1.nbe1_3_team01.domain.board.service
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.board.constants.CommonBoardType;
-import org.team1.nbe1_3_team01.domain.board.repository.CourseBoardRepository;
-import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse;
-import org.team1.nbe1_3_team01.domain.board.service.response.MainCourseBoardListResponse;
-import org.team1.nbe1_3_team01.domain.user.entity.User;
-import org.team1.nbe1_3_team01.domain.user.repository.UserRepository;
-import org.team1.nbe1_3_team01.global.exception.AppException;
-import org.team1.nbe1_3_team01.global.util.ErrorCode;
-import org.team1.nbe1_3_team01.global.util.SecurityUtil;
-
-import java.util.List;
+import lombok.RequiredArgsConstructor
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.board.constants.CommonBoardType
+import org.team1.nbe1_3_team01.domain.board.repository.CourseBoardRepository
+import org.team1.nbe1_3_team01.domain.board.service.response.MainCourseBoardListResponse
+import org.team1.nbe1_3_team01.domain.user.entity.User
+import org.team1.nbe1_3_team01.domain.user.repository.UserRepository
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
+import org.team1.nbe1_3_team01.global.util.SecurityUtil
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MainBoardServiceImpl implements MainBoardService {
+open class MainBoardServiceImpl(
+    private val userRepository: UserRepository,
+    private val courseBoardRepository: CourseBoardRepository
+) : MainBoardService {
 
-    private final UserRepository userRepository;
-    private final CourseBoardRepository courseBoardRepository;
 
-    @Override
-    public MainCourseBoardListResponse getCourseBoardListForMain() {
-        User currentUser = getCurrentUser();
-        Long courseId = currentUser.getCourse().getId();
+    override val courseBoardListForMain: MainCourseBoardListResponse
+        get() {
+            val currentUser = currentUser
+            val courseId = currentUser.course.id
 
-        return getMainCourseBoardListResponse(courseId);
+            return getMainCourseBoardListResponse(courseId)
+        }
+
+    override fun getMainCourseBoardForAdmin(courseId: Long): MainCourseBoardListResponse {
+        return getMainCourseBoardListResponse(courseId)
     }
 
-    @Override
-    public MainCourseBoardListResponse getMainCourseBoardForAdmin(Long courseId) {
-        return getMainCourseBoardListResponse(courseId);
-    }
+    private val currentUser: User
+        get() {
+            val currentUsername = SecurityUtil.getCurrentUsername()
+            return userRepository.findByUsername(currentUsername)
+                .orElseThrow { AppException(ErrorCode.USER_NOT_FOUND) }
+        }
 
-    private User getCurrentUser() {
-        String currentUsername = SecurityUtil.getCurrentUsername();
-        return userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-    }
+    private fun getMainCourseBoardListResponse(courseId: Long): MainCourseBoardListResponse {
+        val noticeBoards = courseBoardRepository.findAllCourseBoard(
+            CommonBoardType.NOTICE,
+            courseId,
+            null
+        )
 
-    private MainCourseBoardListResponse getMainCourseBoardListResponse(Long courseId) {
-        List<CourseBoardResponse> noticeBoards = courseBoardRepository.findAllCourseBoard(
-                CommonBoardType.NOTICE,
-                courseId,
-                null
-        );
-
-        List<CourseBoardResponse> studyBoards = courseBoardRepository.findAllCourseBoard(
-                CommonBoardType.STUDY,
-                courseId,
-                null
-        );
+        val studyBoards = courseBoardRepository.findAllCourseBoard(
+            CommonBoardType.STUDY,
+            courseId,
+            null
+        )
 
         return MainCourseBoardListResponse.of(
-                noticeBoards,
-                studyBoards,
-                courseId
-        );
+            noticeBoards,
+            studyBoards,
+            courseId
+        )
     }
-
 }

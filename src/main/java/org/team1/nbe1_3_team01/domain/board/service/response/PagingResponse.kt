@@ -1,28 +1,21 @@
-package org.team1.nbe1_3_team01.domain.board.service.response;
+package org.team1.nbe1_3_team01.domain.board.service.response
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*
 
-
-@Getter @ToString
-public class PagingResponse {
-    private final Long page;
-    private final Long boardId;
-
-    @Builder
-    private PagingResponse(Long page, Long boardId) {
-        this.page = page;
-        this.boardId = boardId;
-    }
-
-    public static PagingResponse of(
-            Long page,
-            Long boardId
-    ) {
-        return PagingResponse.builder()
-                .page(page)
-                .boardId(boardId)
-                .build();
+@Getter
+@ToString
+class PagingResponse @Builder private constructor(
+    val page: Long,
+    val boardId: Long?
+) {
+    companion object {
+        fun of(
+            page: Long,
+            boardId: Long?
+        ): PagingResponse =
+            PagingResponse(
+                page = page,
+                boardId = boardId
+            )
     }
 }

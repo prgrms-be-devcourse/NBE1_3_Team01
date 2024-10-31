@@ -1,51 +1,37 @@
-package org.team1.nbe1_3_team01.domain.board.entity;
+package org.team1.nbe1_3_team01.domain.board.entity
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.team1.nbe1_3_team01.domain.user.entity.User;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
+import org.team1.nbe1_3_team01.domain.user.entity.User
+import java.time.LocalDateTime
 
 @Entity
-@Getter
 @Table(name = "comment")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
-
+data class Comment (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Long id;
+    val id: Long? = null,
 
-    private String content;
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    val user: User,
+
+    val content: String,
+
+    @JoinColumn(name = "team_board_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    var board: TeamBoard,
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    val createdAt: LocalDateTime? = null,
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private TeamBoard board;
-
-
-    @Builder
-    private Comment(User user, TeamBoard board, String content) {
-        this.user = user;
-        this.board = board;
-        this.content = content;
-        user.addComment(this);
-        board.addComment(this);
+    var updatedAt: LocalDateTime? = null
+) {
+    init {
+        user.addComment(this)
+        board.addComment(this)
     }
-
 }

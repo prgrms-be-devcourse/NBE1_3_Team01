@@ -1,75 +1,54 @@
-package org.team1.nbe1_3_team01.domain.board.entity;
+package org.team1.nbe1_3_team01.domain.board.entity
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.team1.nbe1_3_team01.domain.board.controller.dto.CourseBoardUpdateRequest;
-import org.team1.nbe1_3_team01.domain.user.entity.Course;
-import org.team1.nbe1_3_team01.domain.user.entity.User;
-import org.team1.nbe1_3_team01.global.exception.AppException;
-import org.team1.nbe1_3_team01.global.util.ErrorCode;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
+import org.team1.nbe1_3_team01.domain.board.controller.dto.CourseBoardUpdateRequest
+import org.team1.nbe1_3_team01.domain.user.entity.Course
+import org.team1.nbe1_3_team01.domain.user.entity.User
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
+import java.time.LocalDateTime
 
 @Entity
-@Getter
 @Table(name = "course_board")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CourseBoard {
+data class CourseBoard(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String title;
-
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    val id: Long? = null, // 외부에서 접근 불가하도록 private 제거
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    val createdAt: LocalDateTime? = null,
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    var updatedAt: LocalDateTime? = null,
 
-    private Long readCount;
+    var readCount: Long = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
-    private Course course;
+    var course: Course,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    var user: User,
 
-    @Builder
-    private CourseBoard(
-            Course course,
-            User user,
-            String title,
-            String content) {
-        this.course = course;
-        this.user = user;
-        this.title = title;
-        this.content = content;
-        this.readCount = 0L;
-        user.addCourseBoard(this);
-        course.addCourseBoard(this);
-    }
+    var title: String,
 
-    public void updateBoard(CourseBoardUpdateRequest updateRequest) {
-        String newTitle = updateRequest.title();
-        String newContent = updateRequest.content();
+    @Column(columnDefinition = "TEXT")
+    var content: String
+) {
 
-        if(this.title.equals(newTitle) && this.content.equals(newContent)) {
-            throw new AppException(ErrorCode.BOARD_NOT_UPDATED);
+    fun updateBoard(updateRequest: CourseBoardUpdateRequest) {
+        val newTitle = updateRequest.title
+        val newContent = updateRequest.content
+
+        if (this.title == newTitle && this.content == newContent) {
+            throw AppException(ErrorCode.BOARD_NOT_UPDATED)
         }
 
-        this.title = newTitle;
-        this.content = newContent;
-        this.updatedAt = LocalDateTime.now();
+        this.title = newTitle
+        this.content = newContent
+        this.updatedAt = LocalDateTime.now()
     }
 }
