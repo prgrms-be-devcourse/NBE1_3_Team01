@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.team1.nbe1_3_team01.domain.chat.controller.request.ChatMessageRequest
 import org.team1.nbe1_3_team01.domain.chat.controller.request.InviteRequest
+import org.team1.nbe1_3_team01.domain.chat.entity.Channel
 import org.team1.nbe1_3_team01.domain.chat.entity.ChatActionType
 import org.team1.nbe1_3_team01.domain.chat.entity.Participant
 import org.team1.nbe1_3_team01.domain.chat.entity.ParticipantPK
@@ -30,28 +31,31 @@ class ParticipantService {
 
 
     // 채널에 참여
+    // 채널에 참여
     @Transactional
     fun joinChannel(channelId: Long, userId: Long): ParticipantResponse {
-        try {
-            val userChannelUtil = UserChannelUtil(channelRepository, participantRepository)
-            val existParticipant = userChannelUtil.findUser(userId, channelId)
-            return ParticipantResponse(existParticipant.user!!.id) // 이미 참여 중인 경우 userId만 반환
-        } catch (e: RuntimeException) {
-            val user = userRepository!!.findById(userId).orElseThrow { AppException(ErrorCode.INVITER_NOT_FOUND) }
-            val channel =
-                channelRepository!!.findById(channelId).orElseThrow { AppException(ErrorCode.CHANEL_NOT_FOUND) }!!
+        val userChannelUtil = UserChannelUtil(channelRepository!!, participantRepository!!)
 
-            val participant: Participant = Participant.builder()
-                .isCreator(false)
-                .participatedAt(LocalDateTime.now())
-                .isParticipated(true)
-                .user(user)
-                .channel(channel)
-                .build()
-
-            participantRepository!!.save(participant)
-            return ParticipantResponse(user.id) // 새로운 참여자의 userId만 반환
+        // 이미 참여 중인지 확인
+        val existingParticipant = userChannelUtil.findUser(userId, channelId)
+        if (existingParticipant != null) {
+            return ParticipantResponse(existingParticipant.user?.id ?: throw AppException(ErrorCode.USER_NOT_FOUND))
         }
+
+        // 참여하지 않은 경우 새로 참여
+        val user = userRepository?.findById(userId)?.orElseThrow { AppException(ErrorCode.INVITER_NOT_FOUND) }
+        val channel = channelRepository?.findById(channelId)?.orElseThrow { AppException(ErrorCode.CHANEL_NOT_FOUND) }
+
+        val participant = Participant(
+            isCreator = false,
+            participatedAt = LocalDateTime.now(),
+            isParticipated = true,
+            user = user,
+            channel = channel
+        )
+
+        participantRepository?.save(participant)
+        return ParticipantResponse(user?.id!!)
     }
 
 
@@ -59,87 +63,126 @@ class ParticipantService {
     @Transactional
     fun inviteUser(inviteRequest: InviteRequest) {
         val participantPK = ParticipantPK(inviteRequest.inviteUserId, inviteRequest.channelId)
-        val inviter = participantRepository!!.findById(participantPK)
-            .orElseThrow { AppException(ErrorCode.INVITER_NOT_FOUND) }!!
+        val inviter = participantRepository?.findById(participantPK)
+            ?.orElseThrow { AppException(ErrorCode.INVITER_NOT_FOUND) }
 
-        if (!inviter.isCreator) {
-            throw AppException(ErrorCode.NOT_CHANEL_CREATOR)
+
+        if (inviter != null) {
+            if (!inviter.isCreator) {
+                throw AppException(ErrorCode.NOT_CHANEL_CREATOR)
+            }
         }
 
         joinChannel(inviteRequest.channelId, inviteRequest.participantId)
 
         // 입장 코드 전송
-        val enterMessage: ChatMessageRequest = ChatMessageRequest.builder()
-            .channelId(inviteRequest.channelId)
-            .userId(inviteRequest.participantId)
-            .actionType(ChatActionType.ENTER) // 입장코드 9번 전달
-            .build()
+        val enterMessage = ChatMessageRequest(
+            channelId = inviteRequest.channelId,
+            userId = inviteRequest.participantId,
+            content = "", // 메시지 없이 코드만 전달 (일단은 코드만 전달하겠습니다!)
+            createdAt = LocalDateTime.now(),
+            actionType = ChatActionType.ENTER
+        )
 
-        chatService.sendMessage(inviteRequest.channelId, enterMessage) // 일단 메시지 없이 코드만 전달
+        chatService?.sendMessage(inviteRequest.channelId, enterMessage)
     }
 
-    // 참여중인 채널 조회
-    // Service
     @Transactional(readOnly = true)
-    fun checkUserChannel(userId: Long?): List<ChannelResponse> {
-        val participants = participantRepository!!.findByUserId(userId)
+    fun checkUserChannel(userId: Long): List<ChannelResponse> {
+        val participants = participantRepository?.findByUserId(userId)
+            ?: throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
 
-        return participants!!.stream()
-            .map { participant: Participant? ->
-                val channel = participant!!.channel
-                ChannelResponse(channel!!.id!!, channel.channelName)
+        // 참여자가 하나도 없는 경우
+        if (participants.isEmpty()) {
+            throw AppException(ErrorCode.NO_PARTICIPANTS)
+        }
+
+        val channelResponses = participants.mapNotNull { participant ->
+            participant?.channel?.let { channel ->
+                // channel.id가 null 이 아닐 경우에만 ChannelResponse 생성
+                channel.id?.let { channelId ->
+                    ChannelResponse(channelId, channel.channelName)
+                }
             }
-            .collect(Collectors.toList())
+        }
+
+        // 채널이 하나도 없는 경우 예외 발생
+        if (channelResponses.isEmpty()) {
+            throw AppException(ErrorCode.CHANEL_NOT_FOUND) // 필요한 예외 코드에 맞게 변경
+        }
+
+        return channelResponses
     }
 
-    // 참여자가 스스로 방을 나감
     @Transactional
     fun leaveChannel(participantPK: ParticipantPK) {
-        val participant = participantRepository!!.findById(participantPK)
-            .orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) }!!
+        val participant = participantRepository?.findById(participantPK)
+            ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) }
 
-        participantRepository.delete(participant)
+        participantRepository?.delete(participant)
+
+        val channelId = participantPK.channelId ?: throw AppException(ErrorCode.CHANEL_NOT_FOUND)
+        val userId = participantPK.userId ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+
 
         // 방을 나간 메시지 생성
-        val leaveMessage: ChatMessageRequest = ChatMessageRequest.builder()
-            .channelId(participantPK.getChannelId())
-            .userId(participantPK.getUserId()) // 나간 사용자 ID 설정
-            .actionType(ChatActionType.EXIT) // 0번 코드 전달
-            .build()
+        val leaveMessage = ChatMessageRequest(
+            channelId = channelId,
+            userId = userId,
+            content = "", //
+            createdAt = LocalDateTime.now(),
+            actionType = ChatActionType.EXIT // 0번 코드 전달
+        )
 
         // 방의 모든 사용자에게 나간 알림 전송 (나간 사용자 제외)
-        val participants = participantRepository.findByChannelId(participantPK.getChannelId())
-        for (currentParticipant in participants!!) {
-            if (currentParticipant!!.userId != participantPK.getUserId()) {  // 나간 사용자는 제외
-                chatService.sendMessage(participantPK.getChannelId(), leaveMessage)
+        val participants = participantRepository?.findByChannelId(participantPK.channelId)
+
+        participants?.forEach { currentParticipant ->
+            if (currentParticipant?.userId != participantPK.userId) { // 나간 사용자는 제외
+                chatService?.sendMessage(channelId, leaveMessage)
             }
         }
     }
+
 
     @Transactional
     fun removeParticipant(participantPK: ParticipantPK, participantIdToRemove: Long) {
-        val participant = participantRepository.findById(participantPK)
-            .orElseThrow { AppException(NO_PARTICIPANTS) }
+        // 참여자 조회
+        val participant = participantRepository?.findById(participantPK)
+            ?.orElseThrow { AppException(ErrorCode.NO_PARTICIPANTS) }
 
-        if (!participant.isCreator) {
-            throw AppException(NOT_CHANEL_CREATOR)
+        // 현재 참여자가 채널 생성자인지 확인
+        if (participant != null) {
+            if (!participant.isCreator) {
+                throw AppException(ErrorCode.NOT_CHANEL_CREATOR)
+            }
         }
 
-        val participantToRemove = participantRepository.findById(ParticipantPK(participantIdToRemove, participantPK.channelId))
-            .orElseThrow { AppException(PARTICIPANTS_NOT_FOUND) }
+        // 제거할 참여자 조회
+        val participantToRemove =
+            participantRepository?.findById(ParticipantPK(participantIdToRemove, participantPK.channelId))
+                ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) }
 
-        participantRepository.delete(participantToRemove)
+        // 참여자 삭제
+        participantRepository?.delete(participantToRemove)
+
+        // 킥 메시지 생성
+        val channelId = participantPK.channelId ?: throw AppException(ErrorCode.CHANEL_NOT_FOUND)
+        val userIdToKick = participantIdToRemove
 
         val kickMessage = ChatMessageRequest(
-            channelId = participantPK.channelId,
-            userId = participantIdToRemove,
+            channelId = channelId,
+            userId = userIdToKick,
+            content = "",
+            createdAt = LocalDateTime.now(),
             actionType = ChatActionType.KICK
         )
 
-        val participants = participantRepository.findByChannelId(participantPK.channelId)
-        participants.forEach { currentParticipant ->
-            if (currentParticipant.userId != participantIdToRemove) {
-                chatService.sendMessage(participantPK.channelId, kickMessage)
+        // 방의 모든 사용자에게 킥 메시지 전송 (킥된 사용자는 제외)
+        val participants = participantRepository?.findByChannelId(channelId)
+        participants?.forEach { currentParticipant ->
+            if (currentParticipant?.userId != userIdToKick) {
+                chatService?.sendMessage(channelId, kickMessage)
             }
         }
     }

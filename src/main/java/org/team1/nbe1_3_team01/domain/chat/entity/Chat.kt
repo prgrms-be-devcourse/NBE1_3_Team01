@@ -1,3 +1,5 @@
+package org.team1.nbe1_3_team01.domain.chat.entity
+
 import com.querydsl.core.types.Projections.constructor
 import jakarta.persistence.*
 import lombok.AccessLevel
@@ -29,18 +31,5 @@ class Chat(
     )
     var participant: Participant? = null
 ) {
-    // 일단 Builder 생성자를 만들어두긴 했는데....
-    @Builder
-    constructor(
-        content: String,
-        actionType: ChatActionType,
-        createdAt: LocalDateTime,
-        participant: Participant
-    ) : this() {
-        this.content = content
-        this.actionType = actionType
-        this.createdAt = createdAt
-        this.participant = participant
-        participant.addChat(this) // Chat을 Participant에 추가
-    }
+
 }

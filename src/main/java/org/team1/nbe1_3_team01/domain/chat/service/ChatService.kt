@@ -1,6 +1,5 @@
 package org.team1.nbe1_3_team01.domain.chat.service
 
-import Chat
 import jakarta.persistence.EntityNotFoundException
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
@@ -18,9 +17,6 @@ import org.team1.nbe1_3_team01.domain.chat.service.response.ChatResponse
 import org.team1.nbe1_3_team01.global.exception.AppException
 import org.team1.nbe1_3_team01.global.util.ErrorCode
 import java.time.LocalDateTime
-import java.util.function.Function
-import java.util.function.Supplier
-import java.util.stream.Collectors
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +37,7 @@ class ChatService {
             val chat: Chat = createChat(channelId, updatedRequest.content, updatedRequest.userId)
 
             // ChatMessageResponse 객체 생성
-            val userId: Long = chat.participant.userId ?: throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
+            val userId: Long = chat.participant?.userId ?: throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
 
             return ChatMessageResponse(
                 channelId = channelId,
