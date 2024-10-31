@@ -1,39 +1,48 @@
 package org.team1.nbe1_3_team01.domain.user.entity
 
 import jakarta.persistence.*
-import lombok.AccessLevel
 import lombok.Builder
-import lombok.Getter
-import lombok.NoArgsConstructor
 import org.hibernate.annotations.SQLRestriction
 import org.team1.nbe1_3_team01.domain.board.entity.CourseBoard
 import org.team1.nbe1_3_team01.domain.calendar.entity.CourseSchedule
 import org.team1.nbe1_3_team01.domain.group.entity.Team
 
 @Entity
-@Getter
 @Table(name = "course")
 @SQLRestriction("is_delete = false")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-class Course @Builder private constructor(private var name: String) {
+class Course private constructor(
+    name: String
+) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long? = null
+    val id: Long? = null
+
+    var name: String = name
+        protected set
 
     @Column(columnDefinition = "TINYINT(1)")
-    private var isDelete = false
+    var isDelete = false
+        protected set
 
     @OneToMany(mappedBy = "course")
-    private val users: MutableList<User> = ArrayList()
+    val users: MutableList<User> = mutableListOf()
 
     @OneToMany(mappedBy = "course")
-    private val teams: MutableList<Team> = ArrayList()
+    val teams: MutableList<Team> = mutableListOf()
 
     @OneToMany(mappedBy = "course")
-    private val courseSchedules: MutableList<CourseSchedule> = ArrayList()
+    val courseSchedules: MutableList<CourseSchedule> = mutableListOf()
 
     @OneToMany(mappedBy = "course")
-    private val courseBoards: MutableList<CourseBoard> = ArrayList()
+    val courseBoards: MutableList<CourseBoard> = mutableListOf()
+
+    companion object {
+        fun of(
+            name: String
+        ): Course = Course(
+            name = name
+        )
+    }
 
     fun addUser(user: User) {
         users.add(user)

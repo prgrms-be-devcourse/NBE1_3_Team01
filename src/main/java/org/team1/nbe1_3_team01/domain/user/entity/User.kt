@@ -1,10 +1,8 @@
 package org.team1.nbe1_3_team01.domain.user.entity
 
 import jakarta.persistence.*
-import lombok.AccessLevel
 import lombok.Builder
 import lombok.Getter
-import lombok.NoArgsConstructor
 import org.hibernate.annotations.SQLRestriction
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.team1.nbe1_3_team01.domain.board.entity.Comment
@@ -14,53 +12,100 @@ import org.team1.nbe1_3_team01.domain.chat.entity.Participant
 import org.team1.nbe1_3_team01.domain.group.entity.Belonging
 
 @Entity
-@Getter
 @Table(name = "users")
 @SQLRestriction("is_delete = false")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-class User @Builder private constructor(
-    @Column(length = 20, nullable = false)
-    private var username: String,
+class User private constructor(
+    username: String,
 
-    @Column(nullable = false)
-    private var password: String,
+    password: String,
 
-    @Column(length = 50, nullable = false)
-    private var email: String,
+    email: String,
 
-    @Column(length = 10)
-    private var name: String,
+    name: String,
 
-    @Enumerated(EnumType.STRING)
-    private val role: Role,
+    role: Role,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private val course: Course? = null
+    course: Course?
+
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long? = null
+    val id: Long? = null
+
+    @Column(length = 20, nullable = false)
+    var username:String = username
+        protected set
+
+    @Column(nullable = false)
+    var password:String = password
+        protected set
+
+    @Column(length = 50, nullable = false)
+    var email: String = email
+        protected set
+
+    @Column(length = 10)
+    var name: String = name
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    var role: Role? = role
+        protected set
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    var course: Course? = course
+        protected set
 
     @Column(columnDefinition = "TINYINT(1)")
-    private var isDelete: Boolean? = false
+    var isDelete: Boolean? = false
+        protected set
 
     @OneToMany(mappedBy = "user")
-    private val belongings: MutableList<Belonging> = ArrayList()
+    val belongings: MutableList<Belonging> = mutableListOf()
 
     @OneToMany(mappedBy = "user")
-    private val comments: MutableList<Comment> = ArrayList()
+    val comments: MutableList<Comment> = mutableListOf()
 
     @OneToMany(mappedBy = "user")
-    private val teamBoards: MutableList<TeamBoard> = ArrayList()
+    val teamBoards: MutableList<TeamBoard> = mutableListOf()
 
     @OneToMany(mappedBy = "user")
-    private val courseBoards: MutableList<CourseBoard> = ArrayList()
+    val courseBoards: MutableList<CourseBoard> = mutableListOf()
 
     @OneToMany(mappedBy = "user")
-    private val participants: MutableList<Participant> = ArrayList()
+    val participants: MutableList<Participant> = mutableListOf()
 
+    companion object {
+        fun ofUser(
+            username: String,
+            password: String,
+            email: String,
+            name: String,
+            course: Course
+        ): User = User(
+            username = username,
+            password = password,
+            email = email,
+            name = name,
+            role = Role.USER,
+            course = course
+        )
 
+        fun ofAdmin(
+            username: String,
+            password: String,
+            email: String,
+            name: String,
+        ): User = User(
+            username = username,
+            password = password,
+            email = email,
+            name = name,
+            role = Role.ADMIN,
+            course = null
+        )
+    }
 
     fun addTeamBoard(teamBoard: TeamBoard) {
         teamBoards.add(teamBoard)
