@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import org.team1.nbe1_3_team01.global.auth.email.service.EmailService
 
 @Component
-@RequiredArgsConstructor
 class EmailEventListener(private val emailService: EmailService) {
     @Async
     @EventListener

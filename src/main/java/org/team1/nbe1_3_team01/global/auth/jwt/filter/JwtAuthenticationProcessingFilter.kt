@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import lombok.RequiredArgsConstructor
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -21,7 +20,6 @@ import org.team1.nbe1_3_team01.global.auth.jwt.service.JwtService
 import org.team1.nbe1_3_team01.global.exception.AppException
 import org.team1.nbe1_3_team01.global.util.ErrorCode
 import java.io.IOException
-import java.util.*
 
 /**
  * Jwt 인증 필터
@@ -30,7 +28,7 @@ import java.util.*
  * 2. RefreshToken이 없고, AccessToken이 없거나 유효X 인 경우 -> 인증 실패
  * 3. 재발급 요청 시 RefreshToken 검증 유효하면 AccessToken, RefreshToken 재발급
  */
-@RequiredArgsConstructor
+
 class JwtAuthenticationProcessingFilter(
     private val jwtService: JwtService,
     private val userRepository: UserRepository,
@@ -105,9 +103,10 @@ class JwtAuthenticationProcessingFilter(
         response: HttpServletResponse,
         refreshToken: String
     ) {
-        val token = refreshTokenRepository.findByToken(refreshToken)
-        if (token != null) {
-            val username = token.username
+        val storedToken = refreshTokenRepository.findByToken(refreshToken)
+
+        if (storedToken != null) {
+            val username = storedToken.username
             userRepository.findByUsername(username)
                 ?: throw UsernameNotFoundException("해당 사용자가 존재하지 않습니다")
             jwtService.sendAccessAndRefreshToken(response,jwtService.createAccessToken(username),jwtService.createRefreshToken(username))
@@ -134,9 +133,9 @@ class JwtAuthenticationProcessingFilter(
         try {
             authenticationUser(accessToken)
             filterChain.doFilter(request, response)
-        } catch (e: ExpiredJwtException) {
+        } catch (_: ExpiredJwtException) {
             sendErrorResponse(response, ErrorCode.TOKEN_TIMEOUT)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             sendErrorResponse(response, ErrorCode.TOKEN_INVALID)
         }
     }
