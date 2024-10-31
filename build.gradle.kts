@@ -83,6 +83,7 @@ tasks.named<Test>("test") {
 val generated = "src/main/generated"
 
 kapt {
+    correctErrorTypes = true
     // QueryDSL QClass 파일 생성 위치를 지정
     arguments {
         arg("querydsl.sources", generated) // src/main/generated
