@@ -17,7 +17,6 @@ import org.team1.nbe1_3_team01.global.util.Response
 
 @RestController
 @RequestMapping("/api/user")
-@Slf4j
 class UserController(
     private val userService: UserService,
     private val emailService: EmailService
