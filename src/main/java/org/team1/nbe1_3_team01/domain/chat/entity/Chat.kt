@@ -1,51 +1,45 @@
-package org.team1.nbe1_3_team01.domain.chat.entity;
+import jakarta.persistence.*
+import lombok.AccessLevel
+import lombok.Builder
+import lombok.NoArgsConstructor
+import org.team1.nbe1_3_team01.domain.chat.entity.ChatActionType
+import org.team1.nbe1_3_team01.domain.chat.entity.Participant
+import java.time.LocalDateTime
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "chat")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Chat {
-
+class Chat(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null,
 
-    private ChatActionType actionType; // 방금 이거 추가
+    var actionType: ChatActionType? = null,
 
     @Column(columnDefinition = "TEXT")
-    private String content;
+    var content: String? = null,
 
-    private LocalDateTime createdAt;
+    var createdAt: LocalDateTime? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
-            @JoinColumn(name = "channel_id", referencedColumnName = "channel_id")
-    })
-    private Participant participant;
-
-
+    @JoinColumns(
+        JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+        JoinColumn(name = "channel_id", referencedColumnName = "channel_id")
+    )
+    var participant: Participant? = null
+) {
+    // 일단 Builder 생성자를 만들어두긴 했는데....
     @Builder
-    private Chat(
-            String content,
-            ChatActionType actionType,
-            LocalDateTime createdAt,
-            Participant participant) {
-        this.participant = participant;
-        this.content = content;
-        this.actionType = actionType;
-        this.createdAt = createdAt;
-        participant.addChat(this);
+    constructor(
+        content: String,
+        actionType: ChatActionType,
+        createdAt: LocalDateTime,
+        participant: Participant
+    ) : this() {
+        this.content = content
+        this.actionType = actionType
+        this.createdAt = createdAt
+        this.participant = participant
+        participant.addChat(this) // Chat을 Participant에 추가
     }
-
-    /*@PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }*/
 }

@@ -1,65 +1,62 @@
-package org.team1.nbe1_3_team01.domain.chat.entity;
+package org.team1.nbe1_3_team01.domain.chat.entity
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.team1.nbe1_3_team01.domain.user.entity.User;
+import Chat
+import jakarta.persistence.*
+import org.team1.nbe1_3_team01.domain.user.entity.User
+import java.time.LocalDateTime
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Getter
 @Table(name = "participant")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@IdClass(ParticipantPK.class)
-public class Participant {
-
+@IdClass(ParticipantPK::class)
+class Participant ( // 기본 생성자 추가
     @Id
     @Column(name = "user_id")
-    private Long userId;
+    var userId: Long? = null,
+
     @Id
     @Column(name = "channel_id")
-    private Long channelId;
+    var channelId: Long? = null,
 
     @Column(columnDefinition = "TINYINT(1)")
-    private boolean isCreator;
+    var isCreator: Boolean = false,
 
-    private LocalDateTime participatedAt;
+    var participatedAt: LocalDateTime? = null,
 
     @Column(columnDefinition = "TINYINT(1)")
-    private boolean isParticipated;
+    var isParticipated: Boolean = false,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
+    var user: User? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", insertable = false, updatable = false)
-    private Channel channel;
+    var channel: Channel? = null,
 
     @OneToMany(mappedBy = "participant", fetch = FetchType.EAGER)
-    private List<Chat> chats = new ArrayList<>();
-
-    @Builder
-    private Participant(User user,
-                        Channel channel,
-                        boolean isCreator,
-                        LocalDateTime participatedAt,
-                        boolean isParticipated) {
-        this.userId = user.getId();  // User ID 설정
-        this.channelId = channel.getId();  // Channel ID 설정
-        this.isCreator = isCreator;
-        this.participatedAt = participatedAt;
-        this.isParticipated = isParticipated;
-        user.addParticipant(this);
-        channel.addParticipant(this);
+    var chats: MutableList<Chat> = mutableListOf()
+) {
+    // 커스텀 생성자
+    constructor(
+        user: User,
+        channel: Channel,
+        isCreator: Boolean,
+        participatedAt: LocalDateTime,
+        isParticipated: Boolean
+    ) : this() {
+        this.userId = user.id
+        this.channelId = channel.id
+        this.isCreator = isCreator
+        this.participatedAt = participatedAt
+        this.isParticipated = isParticipated
+        this.user = user
+        this.channel = channel
+        user.addParticipant(this)
+        channel.addParticipant(this)
     }
 
-    public void addChat(Chat chat) {
-        this.chats.add(chat);
+    fun addChat(chat: Chat) {
+        this.chats.add(chat)
     }
 }
