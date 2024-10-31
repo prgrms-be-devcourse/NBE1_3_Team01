@@ -9,5 +9,5 @@ interface UserRepository : JpaRepository<User, Long>, CustomUserRepository {
 
     fun findByEmail(email: String):User?
 
-    fun findByCourse(course: Course): List<User>?
+    fun findByCourse(course: Course): List<User>
 }
