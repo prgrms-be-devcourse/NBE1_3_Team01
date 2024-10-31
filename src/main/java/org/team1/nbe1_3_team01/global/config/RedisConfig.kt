@@ -18,7 +18,7 @@ class RedisConfig {
     private lateinit var host: String
 
     @Value("\${redis.port}")
-    private val port = 0
+    private var port = 0
 
     @Value("\${redis.password}")
     private lateinit var password: String
