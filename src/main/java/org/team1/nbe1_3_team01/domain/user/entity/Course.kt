@@ -1,7 +1,6 @@
 package org.team1.nbe1_3_team01.domain.user.entity
 
 import jakarta.persistence.*
-import lombok.Builder
 import org.hibernate.annotations.SQLRestriction
 import org.team1.nbe1_3_team01.domain.board.entity.CourseBoard
 import org.team1.nbe1_3_team01.domain.calendar.entity.CourseSchedule
@@ -15,7 +14,7 @@ class Course private constructor(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    val id: Long = 0L
 
     var name: String = name
         protected set

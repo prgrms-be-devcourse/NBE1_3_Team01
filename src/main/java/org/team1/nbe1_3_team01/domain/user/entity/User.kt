@@ -30,7 +30,7 @@ class User private constructor(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    val id: Long = 0L
 
     @Column(length = 20, nullable = false)
     var username:String = username
