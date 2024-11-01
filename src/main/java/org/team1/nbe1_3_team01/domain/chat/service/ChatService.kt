@@ -28,15 +28,12 @@ class ChatService {
     @Transactional
     fun sendMessage(channelId: Long, msgRequest: ChatMessageRequest): ChatMessageResponse {
         try {
-            // actionType이 null이면 기본값으로 설정
             val updatedRequest = msgRequest.copy(
                 actionType = msgRequest.actionType ?: ChatActionType.SEND_MESSAGE
             )
 
-            // 채팅방을 만드는 메소드
             val chat: Chat = createChat(channelId, updatedRequest.content, updatedRequest.userId)
 
-            // ChatMessageResponse 객체 생성
             val userId: Long = chat.participant?.userId ?: throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
 
             return ChatMessageResponse(
@@ -103,9 +100,6 @@ class ChatService {
         chatRepository?.delete(chat)
     }
 
-
-    // 채팅 만들기
-
     // 채팅 만들기
     @Transactional
     fun createChat(channelId: Long, message: String, userId: Long?): Chat {
@@ -132,13 +126,11 @@ class ChatService {
 
 
     // 채팅 불러오기
-// 채팅 불러오기
     @Transactional(readOnly = true)
-    fun getChatsByChannelId(channelId: Long): List<ChatResponse> { // Long? -> Long으로 변경
+    fun getChatsByChannelId(channelId: Long): List<ChatResponse> {
         val chats: List<Chat> = chatRepository?.findByParticipant_Channel_Id(channelId)
-            ?.filterNotNull() // null이 아닌 Chat만 필터링
-            ?: throw AppException(ErrorCode.NOT_CHAT) // 만약 null이라면 예외 발생
-
+            ?.filterNotNull() // null 이 아닌 Chat만 필터링
+            ?: throw AppException(ErrorCode.NOT_CHAT)
 
         if (chats.isEmpty()) {
             throw AppException(ErrorCode.NOT_CHAT)
@@ -146,11 +138,9 @@ class ChatService {
 
         return chats.map { chat ->
             ChatResponse(
-                // 로직 수정하기
-                userId = chat.participant?.user?.id
-                    ?: throw AppException(ErrorCode.USER_NOT_FOUND), // user가 null일 경우 예외 발생
-                content = chat.content ?: "",
-                userName = chat.participant?.user?.name ?: "Unknown",
+                userId = chat.participant?.user?.id!!,
+                content = chat.content,
+                userName = chat.participant?.user?.name!!,
                 createdAt = chat.createdAt ?: LocalDateTime.now()
             )
         }
@@ -166,7 +156,7 @@ class ChatService {
         }
 
         return participants.map { participant ->
-            participant?.user?.name ?: "Unknown" // user가 null일 경우 기본값 "Unknown" 반환
+            participant?.user?.name!!
         }
     }
 }

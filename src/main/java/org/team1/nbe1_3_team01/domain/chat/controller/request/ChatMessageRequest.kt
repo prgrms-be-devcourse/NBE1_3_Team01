@@ -10,5 +10,5 @@ data class ChatMessageRequest(
     val userId: Long,
     val content: String,
     val createdAt: LocalDateTime,
-    val actionType: ChatActionType
+    val actionType: ChatActionType?
 )

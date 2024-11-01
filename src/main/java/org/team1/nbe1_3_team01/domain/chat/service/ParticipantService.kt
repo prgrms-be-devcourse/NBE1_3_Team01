@@ -11,6 +11,7 @@ import org.team1.nbe1_3_team01.domain.chat.entity.ChatActionType
 import org.team1.nbe1_3_team01.domain.chat.entity.Participant
 import org.team1.nbe1_3_team01.domain.chat.entity.ParticipantPK
 import org.team1.nbe1_3_team01.domain.chat.repository.ChannelRepository
+import org.team1.nbe1_3_team01.domain.chat.repository.ChatRepository
 import org.team1.nbe1_3_team01.domain.chat.repository.ParticipantRepository
 import org.team1.nbe1_3_team01.domain.chat.service.response.ChannelResponse
 import org.team1.nbe1_3_team01.domain.chat.service.response.ParticipantResponse
@@ -25,12 +26,12 @@ import java.util.stream.Collectors
 class ParticipantService {
     private val participantRepository: ParticipantRepository? = null
     private val channelRepository: ChannelRepository? = null
+    private val chatRepository : ChatRepository? = null
     private val userRepository: UserRepository? = null
     private val chatService: ChatService? = null
     private val messagingTemplate: SimpMessagingTemplate? = null
 
 
-    // 채널에 참여
     // 채널에 참여
     @Transactional
     fun joinChannel(channelId: Long, userId: Long): ParticipantResponse {
@@ -87,33 +88,30 @@ class ParticipantService {
         chatService?.sendMessage(inviteRequest.channelId, enterMessage)
     }
 
+
+    // 참여자가 속해 있는 채팅방 + 각 채팅방에 마지막 메시지 + 시간을 보여주기
     @Transactional(readOnly = true)
     fun checkUserChannel(userId: Long): List<ChannelResponse> {
-        val participants = participantRepository?.findByUserId(userId)
-            ?: throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
-
-        // 참여자가 하나도 없는 경우
-        if (participants.isEmpty()) {
-            throw AppException(ErrorCode.NO_PARTICIPANTS)
-        }
+        val participants = participantRepository?.findByUserId(userId) ?: return emptyList()
 
         val channelResponses = participants.mapNotNull { participant ->
             participant?.channel?.let { channel ->
-                // channel.id가 null 이 아닐 경우에만 ChannelResponse 생성
-                channel.id?.let { channelId ->
-                    ChannelResponse(channelId, channel.channelName)
-                }
+                val lastChat = chatRepository?.findTopByChannelIdOrderByCreatedAtDesc(channel.id!!)
+
+                ChannelResponse(
+                    channelId = channel.id!!,
+                    name = channel.channelName,
+                    lastMessage = lastChat?.content ?: "", // 일단 비어 있는 메시지로 보내기
+                    lastMessageTime = lastChat?.createdAt ?: LocalDateTime.now()
+                )
             }
         }
-
-        // 채널이 하나도 없는 경우 예외 발생
-        if (channelResponses.isEmpty()) {
-            throw AppException(ErrorCode.CHANEL_NOT_FOUND) // 필요한 예외 코드에 맞게 변경
-        }
-
         return channelResponses
     }
 
+
+
+    // 혼자 나가기
     @Transactional
     fun leaveChannel(participantPK: ParticipantPK) {
         val participant = participantRepository?.findById(participantPK)
@@ -145,6 +143,7 @@ class ParticipantService {
     }
 
 
+    // 강퇴하기
     @Transactional
     fun removeParticipant(participantPK: ParticipantPK, participantIdToRemove: Long) {
         // 참여자 조회
