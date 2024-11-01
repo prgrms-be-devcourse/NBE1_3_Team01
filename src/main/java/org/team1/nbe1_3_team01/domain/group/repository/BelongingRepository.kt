@@ -8,7 +8,7 @@ import org.team1.nbe1_3_team01.domain.group.entity.Belonging
 import org.team1.nbe1_3_team01.domain.user.entity.User
 import java.util.*
 
-interface BelongingRepository : JpaRepository<Belonging?, Long?> {
+interface BelongingRepository : JpaRepository<Belonging, Long> {
     @Query(
         "select u " +
                 "from Belonging b " +
@@ -35,7 +35,7 @@ interface BelongingRepository : JpaRepository<Belonging?, Long?> {
     )
     fun deleteBelongings(@Param("teamId") teamId: Long, @Param("userIds") userIds: List<Long>): Int
 
-    fun findByTeamIdAndIsOwner(teamId: Long, isOwner: Boolean): Belonging
+    fun findByTeamIdAndIsOwner(teamId: Long, isOwner: Boolean): Belonging?
 
     fun findByTeam_IdAndUser_Username(teamId: Long, username: String): Belonging?
 

@@ -6,10 +6,8 @@ import org.springframework.data.repository.query.Param
 import org.team1.nbe1_3_team01.domain.group.entity.Team
 import java.util.*
 
-interface TeamRepository : JpaRepository<Team?, Long?> {
+interface TeamRepository : JpaRepository<Team, Long> {
     fun findByCreationWaiting(waiting: Boolean): List<Team>
-
-    fun deleteById(id: Long)
 
     @Query(
         "select t " +
