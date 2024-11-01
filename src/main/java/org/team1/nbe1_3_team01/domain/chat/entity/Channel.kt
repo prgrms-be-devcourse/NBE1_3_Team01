@@ -2,7 +2,8 @@ package org.team1.nbe1_3_team01.domain.chat.entity
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import lombok.*
+import lombok.Getter
+import lombok.Setter
 import org.hibernate.annotations.CreationTimestamp
 import java.time.LocalDateTime
 

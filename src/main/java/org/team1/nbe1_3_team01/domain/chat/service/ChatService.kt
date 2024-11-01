@@ -28,24 +28,33 @@ class ChatService {
     @Transactional
     fun sendMessage(channelId: Long, msgRequest: ChatMessageRequest): ChatMessageResponse {
         try {
+            // 일반 채팅이라 sendMessage 코드 사용
             val updatedRequest = msgRequest.copy(
                 actionType = msgRequest.actionType ?: ChatActionType.SEND_MESSAGE
             )
 
-            val chat: Chat = createChat(channelId, updatedRequest.content, updatedRequest.userId)
+            val participant = participantRepository?.findByUserIdAndChannelId(updatedRequest.userId, channelId)
+                ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) }
 
-            val userId: Long = chat.participant?.userId ?: throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
+            val chat = Chat(
+                actionType = updatedRequest.actionType,
+                content = updatedRequest.content,
+                createdAt = LocalDateTime.now(),
+                participant = participant
+            )
+            chatRepository?.save(chat)
 
             return ChatMessageResponse(
                 channelId = channelId,
-                userId = userId,
+                userId = updatedRequest.userId,
                 content = chat.content,
-                createdAt = LocalDateTime.now()
+                createdAt = chat.createdAt ?: LocalDateTime.now()
             )
         } catch (e: EntityNotFoundException) {
             throw AppException(ErrorCode.PARTICIPANTS_NOT_FOUND)
         }
     }
+
 
 
     // 이모티콘 보내기

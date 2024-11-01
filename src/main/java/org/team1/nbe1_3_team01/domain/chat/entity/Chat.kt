@@ -1,12 +1,6 @@
 package org.team1.nbe1_3_team01.domain.chat.entity
 
-import com.querydsl.core.types.Projections.constructor
 import jakarta.persistence.*
-import lombok.AccessLevel
-import lombok.Builder
-import lombok.NoArgsConstructor
-import org.team1.nbe1_3_team01.domain.chat.entity.ChatActionType
-import org.team1.nbe1_3_team01.domain.chat.entity.Participant
 import java.time.LocalDateTime
 
 
@@ -22,7 +16,7 @@ class Chat(
     @Column(columnDefinition = "TEXT")
     var content: String,
 
-    var createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = LocalDateTime.now(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(
@@ -30,6 +24,4 @@ class Chat(
         JoinColumn(name = "channel_id", referencedColumnName = "channel_id")
     )
     var participant: Participant? = null
-) {
-
-}
+)
