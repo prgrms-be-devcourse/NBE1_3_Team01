@@ -1,22 +1,32 @@
-package org.team1.nbe1_3_team01.global.validation;
+package org.team1.nbe1_3_team01.global.validation
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-import java.time.LocalDateTime;
-import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceCreateRequest;
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
-public class PeriodValidator implements ConstraintValidator<PeriodCheck, AttendanceCreateRequest> {
+@Component
+class PeriodValidator : ConstraintValidator<PeriodCheck, DurationRequest> {
 
-    @Override
-    public void initialize(PeriodCheck constraintAnnotation) {
-        ConstraintValidator.super.initialize(constraintAnnotation);
+    override fun initialize(constraintAnnotation: PeriodCheck) {
     }
 
-    @Override
-    public boolean isValid(AttendanceCreateRequest attendanceCreateRequest, ConstraintValidatorContext constraintValidatorContext) {
-        LocalDateTime startAt = attendanceCreateRequest.startAt();
-        LocalDateTime endAt = attendanceCreateRequest.endAt();
+    override fun isValid(durationRequest: DurationRequest?, context: ConstraintValidatorContext): Boolean {
+        if (durationRequest == null) {
+            return true
+        }
 
-        return startAt.isBefore(endAt);
+        val startAt: LocalDateTime = durationRequest.startAt
+        val endAt: LocalDateTime = durationRequest.endAt
+
+        if (startAt.isAfter(endAt)) {
+            context.disableDefaultConstraintViolation()
+            context.buildConstraintViolationWithTemplate("시작 시간이 끝 시간보다 늦을 수 없습니다.")
+                .addConstraintViolation()
+            return false
+        }
+
+        return true
     }
 }
+

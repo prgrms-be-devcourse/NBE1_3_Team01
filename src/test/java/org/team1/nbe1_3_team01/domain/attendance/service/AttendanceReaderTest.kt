@@ -1,93 +1,85 @@
-package org.team1.nbe1_3_team01.domain.attendance.service;
+package org.team1.nbe1_3_team01.domain.attendance.service
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
+import org.team1.nbe1_3_team01.domain.attendance.entity.IssueType
+import org.team1.nbe1_3_team01.domain.attendance.fake.AttendanceFakeRepository
+import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository
+import org.team1.nbe1_3_team01.global.exception.AppException
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance;
-import org.team1.nbe1_3_team01.domain.attendance.entity.IssueType;
-import org.team1.nbe1_3_team01.domain.attendance.fake.AttendanceFakeRepository;
-import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+@Suppress("NonAsciiCharacters")
+class AttendanceReaderTest {
 
-@SuppressWarnings("NonAsciiCharacters")
-public class AttendanceReaderTest {
-
-    private final AttendanceRepository attendanceRepository;
-    private final AttendanceReader attendanceReader;
-
-    public AttendanceReaderTest() {
-        this.attendanceRepository = new AttendanceFakeRepository();
-        this.attendanceReader = new AttendanceReader(attendanceRepository);
-    }
+    private val attendanceRepository: AttendanceRepository = AttendanceFakeRepository()
+    private val attendanceReader: AttendanceReader = AttendanceReader(attendanceRepository)
 
     @BeforeEach
-    void setUp() {
-        Attendance attendance = Attendance.builder()
-                .issueType(IssueType.ABSENT)
-                .startAt(LocalDateTime.of(LocalDate.now(), LocalTime.of(14, 0, 0)))
-                .endAt(LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0, 0)))
-                .description("국취제로 인한 외출")
-                .registrantId(1L)
-                .build();
-        attendanceRepository.save(attendance);
+    fun setUp() {
+        val attendance = Attendance(
+            registrantId = 1L,
+            issueType = IssueType.ABSENT,
+            startAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(14, 0, 0)),
+            endAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0, 0)),
+            description = "국취제로 인한 외출"
+        )
+        attendanceRepository.save(attendance)
     }
 
     @AfterEach
-    void clear() {
-        attendanceRepository.deleteById(1L);
+    fun clear() {
+        attendanceRepository.deleteById(1L)
     }
 
     @Test
-    void 출결_요청_데이터를_식별자로_조회했을_때_성공적으로_가져온다() {
+    fun `출결 요청 데이터를 식별자로 조회했을 때 성공적으로 가져온다`() {
         // given
-        Long attendanceId = 1L;
+        val attendanceId = 1L
 
         // when
-        Attendance attendance = attendanceReader.get(attendanceId);
+        val attendance = attendanceReader.get(attendanceId)
 
         // then
-        assertThat(attendance.getId()).isEqualTo(attendanceId);
+        assertThat(attendance.id).isEqualTo(attendanceId)
     }
 
     @Test
-    void 출결_요청_데이터를_조회했을_때_데이터가_없다면_예외를_발생시킨다() {
+    fun `출결 요청 데이터를 조회했을 때 데이터가 없다면 예외를 발생시킨다`() {
         // given
-        Long attendanceId = 2L;
+        val attendanceId = 2L
 
         // when & then
-        assertThatThrownBy(() -> attendanceReader.get(attendanceId))
-                .isInstanceOf(AppException.class);
+        assertThatThrownBy { attendanceReader.get(attendanceId) }
+            .isInstanceOf(AppException::class.java)
     }
 
     @Test
-    void 출결_요청_데이터를_등록자_식별자로_조회했을_때_성공적으로_가져온다() {
+    fun `출결 요청 데이터를 등록자 식별자로 조회했을 때 성공적으로 가져온다`() {
         // given
-        Long registrantId = 1L;
+        val registrantId = 1L
 
         // when
-        List<Attendance> attendances = attendanceReader.getList(registrantId);
+        val attendances: List<Attendance> = attendanceReader.getList(registrantId)
 
         // then
-        assertThat(attendances.get(0).getRegistrant().getUserId())
-                .isEqualTo(registrantId);
+        assertThat(attendances[0].registrant.userId).isEqualTo(registrantId)
     }
 
     @Test
-    void 출결_요청_데이터를_조회했을_때_데이터가_없다면_빈_리스트를_반환한다() {
+    fun `출결 요청 데이터를 조회했을 때 데이터가 없다면 빈 리스트를 반환한다`() {
         // given
-        Long registrantId = 2L;
+        val registrantId = 2L
 
         // when
-        List<Attendance> attendances = attendanceReader.getList(registrantId);
+        val attendances: List<Attendance> = attendanceReader.getList(registrantId)
 
         // then
-        assertThat(attendances.isEmpty()).isTrue();
+        assertThat(attendances).isEmpty()
     }
 }

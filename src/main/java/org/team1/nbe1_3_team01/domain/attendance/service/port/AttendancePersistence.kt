@@ -1,16 +1,14 @@
-package org.team1.nbe1_3_team01.domain.attendance.service.port;
+package org.team1.nbe1_3_team01.domain.attendance.service.port
 
-import java.util.List;
-import java.util.Optional;
-import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse;
+import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse
 
-public interface AttendancePersistence {
+interface AttendancePersistence {
 
-    List<AttendanceResponse> findAll();
+    fun findAll(): List<AttendanceResponse>
 
-    List<AttendanceResponse> findByUsername(String username);
+    fun findByUsername(username: String): List<AttendanceResponse>
 
-    Optional<AttendanceResponse> findById(Long id);
+    fun findById(id: Long): AttendanceResponse?
 
-    Optional<AttendanceResponse> findByIdAndUsername(Long id, String username);
+    fun findByIdAndUsername(id: Long, username: String): AttendanceResponse?
 }

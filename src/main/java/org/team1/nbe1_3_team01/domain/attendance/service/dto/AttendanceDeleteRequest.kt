@@ -1,7 +1,5 @@
-package org.team1.nbe1_3_team01.domain.attendance.service.dto;
+package org.team1.nbe1_3_team01.domain.attendance.service.dto
 
-public record AttendanceDeleteRequest(
-        Long id
-) {
-
-}
+data class AttendanceDeleteRequest(
+    val id: Long
+)

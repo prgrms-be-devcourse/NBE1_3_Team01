@@ -1,62 +1,50 @@
-package org.team1.nbe1_3_team01.domain.attendance.fake;
+package org.team1.nbe1_3_team01.domain.attendance.fake
 
-import static org.springframework.test.util.ReflectionTestUtils.setField;
+import org.springframework.test.util.ReflectionTestUtils.setField
+import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
+import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance;
-import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository;
+class AttendanceFakeRepository : AttendanceRepository {
 
-public class AttendanceFakeRepository implements AttendanceRepository {
+    private var id: Int = 0
+    private val attendanceStorage: MutableList<Attendance> = mutableListOf()
 
-    private int id = 0;
-    private final List<Attendance> attendanceStorage = new ArrayList<>();
-
-    @Override
-    public Optional<Attendance> findById(Long id) {
-        if (id == null || id == 0) {
-            return Optional.empty();
+    override fun findById(id: Long): Attendance? {
+        if (id == 0L) {
+            return null
         }
-        try {
-            Attendance attendance = attendanceStorage.get(id.intValue() - 1);
-            return Optional.of(attendance);
-        } catch (IndexOutOfBoundsException e) {
-            return Optional.empty();
+        return try {
+            attendanceStorage[id.toInt() - 1]
+        } catch (e: IndexOutOfBoundsException) {
+            null
         }
     }
 
-    @Override
-    public List<Attendance> findByUserId(Long userId) {
-        return attendanceStorage.stream()
-                .filter(attendance -> attendance.getRegistrant().getUserId().equals(userId))
-                .toList();
+    override fun findByUserId(userId: Long): List<Attendance> {
+        return attendanceStorage.filter { it.registrant.userId == userId }
     }
 
-    @Override
-    public List<Attendance> findAll() {
-        return attendanceStorage.stream()
-                .toList();
+    override fun findAll(): List<Attendance> {
+        return attendanceStorage.toList()
     }
 
-    @Override
-    public Attendance save(Attendance attendance) {
-        Long id = attendance.getId();
-        // INSERT
-        if (id == null || id == 0) {
-            setField(attendance, "id", (long)(this.id + 1));
-            attendanceStorage.add(this.id++, attendance);
+    override fun save(attendance: Attendance): Attendance {
+        val currentId = attendance.id
+        return if (currentId == 0L) {
+            // INSERT
+            setField(attendance, "id", (this.id + 1).toLong())
+            attendanceStorage.add(attendance)
+            this.id += 1
+            attendance
+        } else {
+            // UPDATE
+            attendanceStorage.removeIf { it.id == currentId }
+            attendanceStorage.add((currentId - 1).toInt(), attendance)
+            attendance
         }
-        // UPDATE
-        else {
-            attendanceStorage.removeIf(a -> a.getId().equals(attendance.getId()));
-            attendanceStorage.add((int)(attendance.getId() - 1), attendance);
-        }
-        return attendance;
     }
 
-    @Override
-    public void deleteById(Long id) {
-        attendanceStorage.removeIf(a -> a.getId().equals(id));
+    override fun deleteById(id: Long) {
+        attendanceStorage.removeIf { it.id == id }
     }
 }

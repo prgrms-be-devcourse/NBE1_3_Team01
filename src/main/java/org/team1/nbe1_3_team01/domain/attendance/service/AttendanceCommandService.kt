@@ -1,77 +1,83 @@
-package org.team1.nbe1_3_team01.domain.attendance.service;
+package org.team1.nbe1_3_team01.domain.attendance.service
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.USER_NOT_FOUND;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceCreateRequest;
-import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceUpdateRequest;
-import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance;
-import org.team1.nbe1_3_team01.domain.attendance.service.response.AttendanceIdResponse;
-import org.team1.nbe1_3_team01.domain.user.entity.User;
-import org.team1.nbe1_3_team01.domain.user.repository.UserRepository;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceCreateRequest
+import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceUpdateRequest
+import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
+import org.team1.nbe1_3_team01.domain.attendance.service.response.AttendanceIdResponse
+import org.team1.nbe1_3_team01.domain.user.entity.User
+import org.team1.nbe1_3_team01.domain.user.repository.UserRepository
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode.USER_NOT_FOUND
 
 @Service
 @Transactional
-@RequiredArgsConstructor
-public class AttendanceCommandService {
+class AttendanceCommandService(
+    private val attendanceRegistrar: AttendanceRegistrar,
+    private val attendanceReader: AttendanceReader,
+    private val attendanceUpdater: AttendanceUpdater,
+    private val attendanceDeleter: AttendanceDeleter,
+    private val userRepository: UserRepository
+) {
 
-    private final AttendanceRegistrar attendanceRegistrar;
-    private final AttendanceReader attendanceReader;
-    private final AttendanceUpdater attendanceUpdater;
-    private final AttendanceDeleter attendanceDeleter;
-    private final UserRepository userRepository;
-
-    public AttendanceIdResponse register(
-            String registrantName,
-            AttendanceCreateRequest attendanceCreateRequest
-    ) {
+    fun register(
+        registrantName: String,
+        attendanceCreateRequest: AttendanceCreateRequest
+    ): AttendanceIdResponse {
         // validate
-        User registrant = getCurrentUser(registrantName);
-        attendanceReader.getList(registrant.getId())
-                .forEach(Attendance::validateCanRegister);
+        val registrant: User = getCurrentUser(registrantName)
+        attendanceReader.getList(registrant.id!!)
+            .forEach { it.validateCanRegister() }
 
         // register
-        Long attendanceId = attendanceRegistrar.register(registrant.getId(), attendanceCreateRequest);
+        val attendanceId: Long = attendanceRegistrar.register(registrant.id!!, attendanceCreateRequest)
 
         // parse to response
-        return AttendanceIdResponse.from(attendanceId);
+        return AttendanceIdResponse.from(attendanceId)
     }
 
-    public AttendanceIdResponse update(
-            String currentUsername,
-            AttendanceUpdateRequest attendanceUpdateRequest
-    ) {
+    fun update(
+        currentUsername: String,
+        attendanceUpdateRequest: AttendanceUpdateRequest
+    ): AttendanceIdResponse {
         // validate
-        User currentUser = getCurrentUser(currentUsername);
-        Attendance attendance = attendanceReader.get(attendanceUpdateRequest.id());
-        attendance.validateRegistrant(currentUser.getId());
+        val currentUser: User = getCurrentUser(currentUsername)
+        val attendance: Attendance = attendanceReader.get(attendanceUpdateRequest.id)
+        attendance.validateRegistrant(currentUser.id!!)
+        attendance.validatePending()
 
         // update
-        Long attendanceId = attendanceUpdater.update(attendance, attendanceUpdateRequest);
+        attendance.update(
+            attendanceUpdateRequest.issueType,
+            attendanceUpdateRequest.durationRequest.startAt,
+            attendanceUpdateRequest.durationRequest.endAt,
+            attendanceUpdateRequest.description
+        )
+        val attendanceId: Long = attendanceUpdater.update(attendance)
 
         // parse to response
-        return AttendanceIdResponse.from(attendanceId);
+        return AttendanceIdResponse.from(attendanceId)
     }
 
-    public void delete(
-            String currentUsername,
-            Long attendanceId
+    fun delete(
+        currentUsername: String,
+        attendanceId: Long
     ) {
         // validate
-        User currentUser = getCurrentUser(currentUsername);
-        Attendance attendance = attendanceReader.get(attendanceId);
-        attendance.validateRegistrant(currentUser.getId());
+        val currentUser: User = getCurrentUser(currentUsername)
+
+        val attendance: Attendance = attendanceReader.get(attendanceId)
+        attendance.validateRegistrant(currentUser.id!!)
+        attendance.validatePending()
 
         // delete
-        attendanceDeleter.delete(attendance);
+        attendanceDeleter.delete(attendance)
     }
 
     // 타 도메인 메서드
-    private User getCurrentUser(String username) {
+    private fun getCurrentUser(username: String): User {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(USER_NOT_FOUND));
+            ?: throw AppException(USER_NOT_FOUND)
     }
 }

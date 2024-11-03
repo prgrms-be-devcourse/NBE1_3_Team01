@@ -1,57 +1,56 @@
-package org.team1.nbe1_3_team01.domain.attendance.entity;
+package org.team1.nbe1_3_team01.domain.attendance.entity
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_TIME_END_BEFORE_START;
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_TIME_OUT_OF_RANGE;
-
-import jakarta.persistence.Embeddable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import jakarta.persistence.Embeddable
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_TIME_END_BEFORE_START
+import org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_TIME_OUT_OF_RANGE
 
 @Embeddable
-@EqualsAndHashCode
-@Getter
-public class Duration {
+class Duration(
+    val startAt: LocalDateTime,
+    val endAt: LocalDateTime
+) {
 
-    private final LocalDateTime startAt;
-    private final LocalDateTime endAt;
-
-    // for JPA
-    protected Duration() {
-        startAt = null;
-        endAt = null;
+    init {
+        validateDuration(startAt, endAt)
+        validateTime(startAt)
+        validateTime(endAt)
     }
 
-    public Duration(LocalDateTime startAt, LocalDateTime endAt) {
-        validateDuration(startAt, endAt);
-        validateTime(startAt);
-        validateTime(endAt);
-
-        this.startAt = startAt;
-        this.endAt = endAt;
-    }
-
-    private void validateDuration(LocalDateTime startAt, LocalDateTime endAt) {
+    private fun validateDuration(startAt: LocalDateTime, endAt: LocalDateTime) {
         if (startAt.isAfter(endAt)) {
-            throw new AppException(ATTENDANCE_TIME_END_BEFORE_START);
+            throw AppException(ATTENDANCE_TIME_END_BEFORE_START)
         }
     }
 
-    private void validateTime(LocalDateTime time) {
-        LocalTime date = time.toLocalTime();
-
-        if (date.isBefore(LocalTime.of(9, 0, 0))
-                || date.isAfter(LocalTime.of(18, 0, 1))) {
-            throw new AppException(ATTENDANCE_TIME_OUT_OF_RANGE);
+    private fun validateTime(time: LocalDateTime) {
+        val localTime = time.toLocalTime()
+        if (localTime.isBefore(LocalTime.of(9, 0, 0)) || localTime.isAfter(LocalTime.of(18, 0, 1))) {
+            throw AppException(ATTENDANCE_TIME_OUT_OF_RANGE)
         }
     }
 
-    protected boolean isRegisteredToday() {
-        LocalDate startAtLocalDate = startAt.toLocalDate();
-        LocalDate endAtLocalDate = endAt.toLocalDate();
-        return startAtLocalDate.isEqual(LocalDate.now()) || endAtLocalDate.isEqual(LocalDate.now());
+    fun isRegisteredToday(): Boolean {
+        val today = LocalDate.now()
+        return startAt.toLocalDate() == today || endAt.toLocalDate() == today
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Duration) return false
+
+        if (startAt != other.startAt) return false
+        if (endAt != other.endAt) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startAt.hashCode()
+        result = 31 * result + endAt.hashCode()
+        return result
     }
 }

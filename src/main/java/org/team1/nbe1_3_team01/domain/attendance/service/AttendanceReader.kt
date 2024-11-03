@@ -1,29 +1,25 @@
-package org.team1.nbe1_3_team01.domain.attendance.service;
+package org.team1.nbe1_3_team01.domain.attendance.service
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_NOT_FOUND;
-
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance;
-import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
+import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_NOT_FOUND
 
 @Component
-@RequiredArgsConstructor
-public class AttendanceReader {
-
-    private final AttendanceRepository attendanceRepository;
+class AttendanceReader(
+    private val attendanceRepository: AttendanceRepository
+) {
 
     @Transactional(readOnly = true)
-    public List<Attendance> getList(Long userId) {
-        return attendanceRepository.findByUserId(userId);
+    fun getList(userId: Long): List<Attendance> {
+        return attendanceRepository.findByUserId(userId)
     }
 
     @Transactional(readOnly = true)
-    public Attendance get(Long id) {
+    fun get(id: Long): Attendance {
         return attendanceRepository.findById(id)
-                .orElseThrow(() -> new AppException(ATTENDANCE_NOT_FOUND));
+            ?: throw AppException(ATTENDANCE_NOT_FOUND)
     }
 }

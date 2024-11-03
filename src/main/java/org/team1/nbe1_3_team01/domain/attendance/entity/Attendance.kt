@@ -1,99 +1,92 @@
-package org.team1.nbe1_3_team01.domain.attendance.entity;
+package org.team1.nbe1_3_team01.domain.attendance.entity
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.REQUEST_ALREADY_APPROVED;
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.REQUEST_ALREADY_EXISTS;
-
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceUpdateRequest;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import jakarta.persistence.*
+import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceUpdateRequest
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode.*
+import java.time.LocalDateTime
 
 @Entity
-@Getter
 @Table(name = "attendance")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Attendance {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Embedded
-    @AttributeOverride(name = "userId", column = @Column(name = "user_id"))
-    private Registrant registrant;
+open class Attendance private constructor(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private IssueType issueType;
+    var issueType: IssueType,
 
-    private String description;
+    @Column(name = "description")
+    var description: String,
 
     @Enumerated(EnumType.STRING)
-    private ApprovalState approvalState;
+    @Column(name = "approval_state")
+    var approvalState: ApprovalState = ApprovalState.PENDING,
 
     @Embedded
-    private Duration duration;
+    var duration: Duration,
 
-    @Builder
-    public Attendance(
-            IssueType issueType,
-            LocalDateTime startAt,
-            LocalDateTime endAt,
-            String description,
-            Long registrantId
+    @Embedded
+    @AttributeOverride(name = "userId", column = Column(name = "user_id"))
+    var registrant: Registrant
+) {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L
+        protected set
+
+    constructor(
+        issueType: IssueType,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+        description: String,
+        registrantId: Long
+    ) : this(
+        issueType = issueType,
+        description = description,
+        approvalState = ApprovalState.PENDING,
+        duration = Duration(startAt, endAt),
+        registrant = Registrant(registrantId)
+    )
+
+    fun update(
+        issueType: IssueType,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+        description: String
     ) {
-        this.issueType = issueType;
-        this.description = description;
-        this.approvalState = ApprovalState.PENDING;
-        this.duration = new Duration(startAt, endAt);
-        this.registrant = new Registrant(registrantId);
+        validatePending()
+        this.issueType = issueType
+        this.duration = Duration(startAt, endAt)
+        this.description = description
     }
 
-    // @TODO : update 로직 분리
-    public void update(AttendanceUpdateRequest attendanceUpdateRequest) {
-        if (!isPending()) {
-            throw new AppException(REQUEST_ALREADY_APPROVED);
+    fun approve() {
+        if (approvalState.isApproved()) {
+            throw AppException(REQUEST_ALREADY_APPROVED)
         }
-        this.issueType = attendanceUpdateRequest.issueType();
-        this.duration = new Duration(attendanceUpdateRequest.startAt(), attendanceUpdateRequest.endAt());
-        this.description = attendanceUpdateRequest.description();
+        approvalState = ApprovalState.APPROVED
     }
 
-    private boolean isPending() {
-        return approvalState.equals(ApprovalState.PENDING);
-    }
-
-    public void approve() {
-        if (isApprove()) {
-            throw new AppException(REQUEST_ALREADY_APPROVED);
+    fun reject() {
+        if (approvalState.isRejected()) {
+            throw AppException(REQUEST_ALREADY_REJECTED)
         }
-        approvalState = ApprovalState.APPROVED;
+        approvalState = ApprovalState.REJECTED
     }
 
-    private boolean isApprove() {
-        return approvalState.equals(ApprovalState.APPROVED);
+    fun validateRegistrant(currentUserId: Long) {
+        registrant.validateRegistrant(currentUserId)
     }
 
-    public void validateRegistrant(Long currentUserId) {
-        registrant.validateRegistrant(currentUserId);
+    fun validateCanRegister() {
+        if (duration.isRegisteredToday() && approvalState.isPending()) {
+            throw AppException(REQUEST_ALREADY_EXISTS)
+        }
     }
 
-    public void validateCanRegister() {
-        if (isPending() && duration.isRegisteredToday()) {
-            throw new AppException(REQUEST_ALREADY_EXISTS);
+    fun validatePending() {
+        if (!approvalState.isPending()) {
+            throw AppException(REQUEST_ALREADY_APPROVED)
         }
     }
 }

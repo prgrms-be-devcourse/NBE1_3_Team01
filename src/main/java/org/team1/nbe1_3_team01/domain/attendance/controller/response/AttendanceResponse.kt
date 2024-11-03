@@ -1,18 +1,14 @@
-package org.team1.nbe1_3_team01.domain.attendance.controller.response;
+package org.team1.nbe1_3_team01.domain.attendance.controller.response
 
-import java.time.LocalDateTime;
-import lombok.Builder;
-import org.team1.nbe1_3_team01.domain.attendance.entity.IssueType;
+import org.team1.nbe1_3_team01.domain.attendance.entity.IssueType
+import java.time.LocalDateTime
 
-@Builder
-public record AttendanceResponse(
-        Long attendanceId,
-        Long userId,
-        String username,
-        IssueType issueType,
-        LocalDateTime startAt,
-        LocalDateTime endAt,
-        String description
-) {
-
-}
+data class AttendanceResponse(
+    val attendanceId: Long,
+    val userId: Long,
+    val username: String,
+    val issueType: IssueType,
+    val startAt: LocalDateTime,
+    val endAt: LocalDateTime,
+    val description: String
+)

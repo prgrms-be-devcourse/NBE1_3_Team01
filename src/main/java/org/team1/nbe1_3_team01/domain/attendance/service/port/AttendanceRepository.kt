@@ -1,18 +1,16 @@
-package org.team1.nbe1_3_team01.domain.attendance.service.port;
+package org.team1.nbe1_3_team01.domain.attendance.service.port
 
-import java.util.List;
-import java.util.Optional;
-import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance;
+import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
 
-public interface AttendanceRepository {
+interface AttendanceRepository {
 
-    Optional<Attendance> findById(Long id);
+    fun findById(id: Long): Attendance?
 
-    List<Attendance> findByUserId(Long userId);
+    fun findByUserId(userId: Long): List<Attendance>
 
-    List<Attendance> findAll();
+    fun findAll(): List<Attendance>
 
-    Attendance save(Attendance attendance);
+    fun save(attendance: Attendance): Attendance
 
-    void deleteById(Long id);
+    fun deleteById(id: Long)
 }

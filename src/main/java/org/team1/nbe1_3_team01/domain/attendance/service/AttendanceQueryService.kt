@@ -1,35 +1,25 @@
-package org.team1.nbe1_3_team01.domain.attendance.service;
+package org.team1.nbe1_3_team01.domain.attendance.service
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_NOT_FOUND;
-
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse;
-import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendancePersistence;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import org.springframework.stereotype.Service
+import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse
+import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendancePersistence
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode.ATTENDANCE_NOT_FOUND
 
 @Service
-@RequiredArgsConstructor
-public class AttendanceQueryService {
+class AttendanceQueryService(
+    private val attendancePersistence: AttendancePersistence
+) {
 
-    private final AttendancePersistence attendancePersistence;
+    fun getAll(): List<AttendanceResponse> = attendancePersistence.findAll()
 
-    public List<AttendanceResponse> getAll() {
-        return attendancePersistence.findAll();
-    }
+    fun getMyAttendances(currentUsername: String): List<AttendanceResponse> =
+        attendancePersistence.findByUsername(currentUsername)
 
-    public List<AttendanceResponse> getMyAttendances(String currentUsername) {
-        return attendancePersistence.findByUsername(currentUsername);
-    }
+    fun getById(id: Long): AttendanceResponse =
+        attendancePersistence.findById(id) ?: throw AppException(ATTENDANCE_NOT_FOUND)
 
-    public AttendanceResponse getById(Long id) {
-        return attendancePersistence.findById(id)
-                .orElseThrow(() -> new AppException(ATTENDANCE_NOT_FOUND));
-    }
-
-    public AttendanceResponse getByIdAndUserId(Long attendanceId, String currentUsername) {
-        return attendancePersistence.findByIdAndUsername(attendanceId, currentUsername)
-                .orElseThrow(() -> new AppException(ATTENDANCE_NOT_FOUND));
-    }
+    fun getByIdAndUserId(attendanceId: Long, currentUsername: String): AttendanceResponse =
+        attendancePersistence.findByIdAndUsername(attendanceId, currentUsername)
+            ?: throw AppException(ATTENDANCE_NOT_FOUND)
 }

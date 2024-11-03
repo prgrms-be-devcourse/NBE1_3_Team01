@@ -1,40 +1,32 @@
-package org.team1.nbe1_3_team01.domain.attendance.repository;
+package org.team1.nbe1_3_team01.domain.attendance.repository
 
-import java.util.List;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance;
-import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository;
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Repository
+import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
+import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendanceRepository
 
 @Repository
-@RequiredArgsConstructor
-public class AttendanceRepositoryImpl implements AttendanceRepository {
+class AttendanceRepositoryImpl(
+    private val attendanceJpaRepository: AttendanceJpaRepository
+) : AttendanceRepository {
 
-    private final AttendanceJpaRepository attendanceJpaRepository;
-
-    @Override
-    public Optional<Attendance> findById(Long id) {
-        return attendanceJpaRepository.findById(id);
+    override fun findById(id: Long): Attendance? {
+        return attendanceJpaRepository.findByIdOrNull(id)
     }
 
-    @Override
-    public List<Attendance> findByUserId(Long userId) {
-        return attendanceJpaRepository.findByRegistrant_UserId(userId);
+    override fun findByUserId(userId: Long): List<Attendance> {
+        return attendanceJpaRepository.findByRegistrant_UserId(userId)
     }
 
-    @Override
-    public List<Attendance> findAll() {
-        return attendanceJpaRepository.findAll();
+    override fun findAll(): List<Attendance> {
+        return attendanceJpaRepository.findAll()
     }
 
-    @Override
-    public Attendance save(Attendance attendance) {
-        return attendanceJpaRepository.save(attendance);
+    override fun save(attendance: Attendance): Attendance {
+        return attendanceJpaRepository.save(attendance)
     }
 
-    @Override
-    public void deleteById(Long id) {
-        attendanceJpaRepository.deleteById(id);
+    override fun deleteById(id: Long) {
+        attendanceJpaRepository.deleteById(id)
     }
 }
