@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.test.util.ReflectionTestUtils
 import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceUpdateRequest
 import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.validation.DurationRequest
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -113,16 +114,24 @@ class AttendanceTest {
         attendance.approve()
 
         // when
+        val durationRequest = DurationRequest(
+            startAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(14, 0, 0)),
+            endAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0, 0)),
+        )
         val attendanceUpdateRequest = AttendanceUpdateRequest(
             id = attendanceId,
             issueType = IssueType.ABSENT,
-            startAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(13, 0)),
-            endAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0)),
-            description = "국취제로 인한 외출"
+            durationRequest = durationRequest,
+            description = "국취제로 인한 외출입니다."
         )
 
         // then
-        assertThatThrownBy { attendance.update(attendanceUpdateRequest) }
+        assertThatThrownBy { attendance.update(
+            attendanceUpdateRequest.issueType,
+            attendanceUpdateRequest.durationRequest.startAt,
+            attendanceUpdateRequest.durationRequest.endAt,
+            attendanceUpdateRequest.description)
+        }
             .isInstanceOf(AppException::class.java)
     }
 }

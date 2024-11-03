@@ -50,16 +50,24 @@ class AttendanceUpdaterTest {
         // given
         val attendanceId = 1L
         val attendance: Attendance = attendanceReader.get(attendanceId)
+
+        val durationRequest = DurationRequest(
+            startAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(14, 0, 0)),
+            endAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0, 0)),
+        )
         val attendanceUpdateRequest = AttendanceUpdateRequest(
             id = attendanceId,
             issueType = IssueType.ABSENT,
-            startAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(13, 0, 0)),
-            endAt = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0, 0)),
+            durationRequest = durationRequest,
             description = "국취제로 인한 외출입니다."
         )
 
         // when
-        attendance.update(attendanceUpdateRequest)
+        attendance.update(
+            attendanceUpdateRequest.issueType,
+            attendanceUpdateRequest.durationRequest.startAt,
+            attendanceUpdateRequest.durationRequest.endAt,
+            attendanceUpdateRequest.description)
         val updatedAttendanceId = attendanceUpdater.update(attendance)
 
         // then
@@ -67,7 +75,7 @@ class AttendanceUpdaterTest {
 
         // 추가 검증: 수정된 값이 올바르게 반영되었는지 확인
         val updatedAttendance: Attendance = attendanceReader.get(attendanceId)
-        assertThat(updatedAttendance.startAt).isEqualTo(LocalDateTime.of(LocalDate.now(), LocalTime.of(13, 0, 0)))
+        assertThat(updatedAttendance.duration.startAt).isEqualTo(LocalDateTime.of(LocalDate.now(), LocalTime.of(13, 0, 0)))
         assertThat(updatedAttendance.description).isEqualTo("국취제로 인한 외출입니다.")
     }
 }
