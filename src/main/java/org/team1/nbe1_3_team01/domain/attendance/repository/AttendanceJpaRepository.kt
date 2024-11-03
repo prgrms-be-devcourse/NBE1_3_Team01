@@ -8,6 +8,4 @@ import org.team1.nbe1_3_team01.domain.attendance.entity.Attendance
 interface AttendanceJpaRepository : JpaRepository<Attendance, Long> {
 
     fun findByRegistrant_UserId(userId: Long): List<Attendance>
-
-    fun findByIdAndRegistrant_UserId(attendanceId: Long, userId: Long): Attendance?
 }
