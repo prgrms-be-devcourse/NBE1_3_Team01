@@ -50,7 +50,7 @@ class AttendanceCommandServiceTest {
             name = "김철수",
             course = Mockito.mock(Course::class.java)
         )
-        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "id", 1L)
 
         // Mockito lenient stubbing
         lenient().`when`(userRepository.findByUsername(user.username)).thenReturn(user)
