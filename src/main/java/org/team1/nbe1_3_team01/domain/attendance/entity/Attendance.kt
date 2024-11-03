@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "attendance")
-open class Attendance private constructor(
+class Attendance private constructor(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
