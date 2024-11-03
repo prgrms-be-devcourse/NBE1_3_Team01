@@ -1,7 +1,6 @@
 package org.team1.nbe1_3_team01.domain.attendance.entity
 
 import jakarta.persistence.*
-import org.team1.nbe1_3_team01.domain.attendance.service.dto.AttendanceUpdateRequest
 import org.team1.nbe1_3_team01.global.exception.AppException
 import org.team1.nbe1_3_team01.global.util.ErrorCode.*
 import java.time.LocalDateTime
