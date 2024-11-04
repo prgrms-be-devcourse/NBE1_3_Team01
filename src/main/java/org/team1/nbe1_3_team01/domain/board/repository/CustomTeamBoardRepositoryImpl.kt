@@ -95,7 +95,7 @@ class CustomTeamBoardRepositoryImpl(
                FROM team_board
                WHERE team_board.id = :teamId
                ) subquery WHERE subquery.row_num % 10 = 1 and subquery.row_num > 10
-               ORDER BY subquery.row_num DESC")
+               ORDER BY subquery.row_num DESC"
             """.trimIndent()
         } else {
             """
