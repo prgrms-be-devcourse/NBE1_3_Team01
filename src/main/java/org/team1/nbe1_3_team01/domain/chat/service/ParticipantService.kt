@@ -130,24 +130,24 @@ class ParticipantService {
     }
 
 
-    // 혼자 나가기
     @Transactional
-    fun leaveChannel(participantPK: ParticipantPK) {
-        val participant = participantRepository?.findById(participantPK)
-            ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) }
+    fun leaveChannel(channelId: Long) {
+        // 현재 인증된 사용자 가져오기
+        val userId = userChannelUtil?.currentUser()?.id
 
-        participantRepository?.delete(participant) // 참여자 삭제
+        // 현재 사용자와 채널에 대한 참여 정보 조회
+        val participant = participantRepository?.findByUserIdAndChannelId(userId, channelId)
+            ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) } // Optional 처리
 
-        val channelId = participantPK.channelId ?: throw AppException(ErrorCode.CHANEL_NOT_FOUND)
-        val userId = participantPK.userId ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+        participantRepository?.delete(participant!!) // 참여자 삭제
 
         // 방의 모든 사용자에게 나간 알림 전송 (나간 사용자 제외)
         val participants = participantRepository?.findByChannelId(channelId)
         participants?.forEach { currentParticipant ->
-            if (currentParticipant?.userId != userId) { // 나간 사용자는 제외
+            if (currentParticipant?.user?.id != userId) { // 나간 사용자는 제외
                 val leaveMessage = ChatMessageRequest(
                     channelId = channelId,
-                    userId = userId,
+                    userId = userId!!,
                     content = "",
                     createdAt = LocalDateTime.now(),
                     actionType = ChatActionType.EXIT
@@ -156,6 +156,7 @@ class ParticipantService {
             }
         }
     }
+
 
     // 강퇴하기
     @Transactional
@@ -192,6 +193,4 @@ class ParticipantService {
             }
         }
     }
-
-
 }

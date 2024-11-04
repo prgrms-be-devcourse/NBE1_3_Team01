@@ -22,15 +22,13 @@ class ChannelController(
 
     @PostMapping
     fun createChannel(@RequestBody channelCreateRequest: ChannelCreateRequest): ResponseEntity<Response<Long>> {
-        val pk = channelService.createChannel(channelCreateRequest.creatorUserId, channelCreateRequest.channelName)
+        val pk = channelService.createChannel(channelCreateRequest.channelName)
         return ResponseEntity.ok().body(Response.success(pk))
     }
 
     @PatchMapping("/update")
     fun updateChannel(@RequestBody channelUpdateRequest: ChannelUpdateRequest): ResponseEntity<Response<Long>> {
         val pk = channelService.updateChannel(
-            channelUpdateRequest.userId,
-            channelUpdateRequest.channelId,
             channelUpdateRequest.channelName
         )
         return ResponseEntity.ok().body(Response.success(pk))
@@ -38,7 +36,7 @@ class ChannelController(
 
     @DeleteMapping("/delete")
     fun deleteChannel(@RequestBody channelRequest: ChannelRequest): ResponseEntity<Void> {
-        channelService.deleteChannel(channelRequest.userId, channelRequest.channelId)
+        channelService.deleteChannel(channelRequest.channelId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

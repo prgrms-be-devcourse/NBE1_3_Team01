@@ -7,6 +7,7 @@ import org.team1.nbe1_3_team01.domain.chat.controller.request.ChannelRequest
 import org.team1.nbe1_3_team01.domain.chat.controller.request.InviteRequest
 import org.team1.nbe1_3_team01.domain.chat.controller.request.KickOutRequest
 import org.team1.nbe1_3_team01.domain.chat.entity.ParticipantPK
+import org.team1.nbe1_3_team01.domain.chat.entity.QParticipantPK.participantPK
 import org.team1.nbe1_3_team01.domain.chat.service.ParticipantService
 import org.team1.nbe1_3_team01.domain.chat.service.response.ChannelResponse
 import org.team1.nbe1_3_team01.domain.chat.service.response.ParticipantResponse
@@ -40,8 +41,7 @@ class ParticipantController(private val participantService: ParticipantService)
     // 참여자가 스스로 방을 나가기 (채널 탈퇴)
     @DeleteMapping("/leave")
     fun leaveChannel(@RequestBody channelRequest: ChannelRequest): ResponseEntity<Void> {
-        val participantPK = ParticipantPK(channelRequest.userId, channelRequest.channelId)
-        participantService.leaveChannel(participantPK)
+        participantService.leaveChannel(channelRequest.channelId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
