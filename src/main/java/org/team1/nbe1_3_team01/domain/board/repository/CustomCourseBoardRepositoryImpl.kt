@@ -5,10 +5,14 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
 import lombok.RequiredArgsConstructor
-import org.hibernate.query.results.Builders.fetch
 import org.team1.nbe1_3_team01.domain.board.constants.CommonBoardType
+import org.team1.nbe1_3_team01.domain.board.entity.CourseReadCount
 import org.team1.nbe1_3_team01.domain.board.entity.QCourseBoard.courseBoard
 import org.team1.nbe1_3_team01.domain.board.entity.QCourseReadCount.courseReadCount
+import org.team1.nbe1_3_team01.domain.board.entity.QTeamBoard
+import org.team1.nbe1_3_team01.domain.board.entity.QTeamReadCount
+import org.team1.nbe1_3_team01.domain.board.entity.TeamReadCount
+import org.team1.nbe1_3_team01.domain.board.service.converter.DateTimeToStringConverter
 import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
@@ -68,10 +72,24 @@ class CustomCourseBoardRepositoryImpl(
             .fetchOne()
 
         return if(tuple == null) null else {
+            var flag = false
             val currentUser = findCurrentUser()
+            val readLog = queryFactory.selectFrom(courseReadCount)
+                .where(
+                    courseReadCount.courseBoardId.eq(courseId)
+                    .and(courseReadCount.userId.eq(currentUser!!.id)))
+                .fetchOne()
 
+            if (readLog == null && !tuple.get(courseBoard.user.id)!!.equals(currentUser.id)) {
+                val newReadCount = CourseReadCount(
+                    userId = currentUser.id!!,
+                    courseBoardId = courseId
+                )
+                entityManager.persist(newReadCount)
+                flag = true
+            }
 
-            convertToBoardDetailResponse(tuple, currentUser)
+            convertToBoardDetailResponse(tuple, currentUser, flag)
         }
     }
 
@@ -139,27 +157,30 @@ class CustomCourseBoardRepositoryImpl(
     }
 
     private fun convertToCourseBoardResponse(tuple: Tuple): CourseBoardResponse =
-        CourseBoardResponse.of(
+        CourseBoardResponse(
             id = tuple.get(courseBoard.id),
             title = tuple.get(courseBoard.title),
             writer = tuple.get(user.name),
             readCount = tuple.get(courseReadCount.id.count(),) ?: 0L,
-            createdAt = tuple.get(courseBoard.createdAt)
+            createdAt = DateTimeToStringConverter.convert(tuple.get(courseBoard.createdAt))
         )
 
 
-    private fun convertToBoardDetailResponse(tuple: Tuple, currentUser: User?): BoardDetailResponse =
-        BoardDetailResponse.of(
+    private fun convertToBoardDetailResponse(tuple: Tuple, currentUser: User?, flag: Boolean): BoardDetailResponse {
+        val addCount = if (flag) 1L else 0L
+        return BoardDetailResponse(
             id = tuple.get(courseBoard.id),
             title = tuple.get(courseBoard.title),
-            readCount = tuple.get(courseReadCount.id.count(),) ?: 0L,
+            readCount = (tuple.get(courseReadCount.id.count(),) ?: 0L) + addCount,
             content = tuple.get(courseBoard.content),
             writer = tuple.get(user.name),
-            createdAt = tuple.get(courseBoard.createdAt),
+            createdAt = DateTimeToStringConverter.convert(tuple.get(courseBoard.createdAt)),
             isAdmin = currentUser!!.role == Role.ADMIN,
             categoryName = null,
             isMine = tuple.get(courseBoard.user.id) == currentUser.id
         )
+
+    }
 
     companion object {
         private const val PAGE_SIZE = 10

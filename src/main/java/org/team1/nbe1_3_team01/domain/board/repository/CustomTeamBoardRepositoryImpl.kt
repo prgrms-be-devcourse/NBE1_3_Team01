@@ -67,7 +67,7 @@ class CustomTeamBoardRepositoryImpl(
             .fetchOne()
 
         return if(tuple == null) null else {
-            var flag = false;
+            var flag = false
             val currentUser = findCurrentUser()
             val readLog = queryFactory.selectFrom(teamReadCount)
                 .where(teamReadCount.teamBoardId.eq(teamBoardId)

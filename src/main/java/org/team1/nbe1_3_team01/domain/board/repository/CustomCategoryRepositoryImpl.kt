@@ -17,7 +17,7 @@ class CustomCategoryRepositoryImpl(
         val fetchedList = queryFactory.select(
             category.id,
             category.name,
-            teamBoard.count().`as`("boardCount")
+            teamBoard.id.count()
         )
             .from(category)
             .leftJoin(teamBoard).on(teamBoard.categoryId.eq(category.id))
@@ -31,10 +31,10 @@ class CustomCategoryRepositoryImpl(
 
     private fun convertToResponse(fetchedList: List<Tuple>): List<CategoryResponse>
         = fetchedList.map { tuple ->
-            of(
-                tuple.get(category.id),
-                tuple.get(category.name),
-                tuple.get(teamBoard.count()) ?: 0L
+            CategoryResponse(
+                id = tuple.get(category.id),
+                name = tuple.get(category.name),
+                boardCount = tuple.get(teamBoard.count()) ?: 0L
             )
     }
 }

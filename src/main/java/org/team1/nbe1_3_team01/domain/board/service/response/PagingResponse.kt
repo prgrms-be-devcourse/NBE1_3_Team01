@@ -2,9 +2,8 @@ package org.team1.nbe1_3_team01.domain.board.service.response
 
 import lombok.*
 
-@Getter
-@ToString
-class PagingResponse @Builder private constructor(
+
+data class PagingResponse (
     val page: Long,
     val boardId: Long?
 ) {
