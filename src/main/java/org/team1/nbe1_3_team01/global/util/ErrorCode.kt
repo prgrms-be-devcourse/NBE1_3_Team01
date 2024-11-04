@@ -92,5 +92,5 @@ enum class ErrorCode(
         return this
     }
 
-    fun getMessage(): String = formattedMessage ?: message
+    fun printMessage(): String = formattedMessage ?: message
 }

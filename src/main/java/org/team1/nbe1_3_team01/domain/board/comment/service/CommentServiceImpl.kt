@@ -59,6 +59,6 @@ class CommentServiceImpl(
         get() {
             val currentUsername = SecurityUtil.getCurrentUsername()
             return userRepository.findByUsername(currentUsername)
-                .orElseThrow { AppException(ErrorCode.USER_NOT_FOUND) }
+                ?: throw AppException(ErrorCode.USER_NOT_FOUND)
         }
 }

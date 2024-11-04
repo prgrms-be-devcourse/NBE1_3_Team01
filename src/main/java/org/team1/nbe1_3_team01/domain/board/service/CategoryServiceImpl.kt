@@ -9,6 +9,7 @@ import org.team1.nbe1_3_team01.domain.board.controller.dto.CategoryRequest
 import org.team1.nbe1_3_team01.domain.board.repository.CategoryRepository
 import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse
 import org.team1.nbe1_3_team01.domain.board.service.valid.CategoryValidator
+import org.team1.nbe1_3_team01.domain.group.entity.Belonging
 import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository
 import org.team1.nbe1_3_team01.domain.group.repository.TeamRepository
 import org.team1.nbe1_3_team01.global.exception.AppException
@@ -69,10 +70,10 @@ class CategoryServiceImpl(
      */
     private fun validTeamLeader(teamId: Long) {
         val currentUsername = SecurityUtil.getCurrentUsername()
-        val belonging = belongingRepository.findByTeam_IdAndUser_Username(
+        val belonging: Belonging = (belongingRepository.findByTeam_IdAndUser_Username(
             teamId,
             currentUsername
-        ).orElseThrow { AppException(ErrorCode.BELONGING_NOT_FOUND) }
+        ) ?: AppException(ErrorCode.BELONGING_NOT_FOUND)) as Belonging
 
         CategoryValidator.validateTeamLeader(belonging)
     }
