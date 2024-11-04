@@ -101,7 +101,7 @@ class CustomCourseBoardRepositoryImpl(
             JOIN users ON course_board.user_id = users.id
             WHERE course_board.course_id = :courseId
             AND users.role = :role
-            ) subquery WHERE subquery.row_num % PAGE_SIZE = 1 and subquery.row_num > PAGE_SIZE
+            ) subquery WHERE subquery.row_num % 10 = 1 and subquery.row_num > 10
             ORDER BY subquery.row_num DESC
             """.trimIndent()
 

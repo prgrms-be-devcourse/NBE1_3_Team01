@@ -36,14 +36,14 @@ class AuthInterceptor(
                 return true
             }
             GroupAuth.Role.COURSE -> {
-                val courseId = request.getParameter("course-id")?.toLongOrNull()
+                val courseId = request.getParameter("courseId")?.toLongOrNull()
                     ?: throw AppException(ErrorCode.INVALID_COURSE_ID)
                 if (user.course?.id != courseId) {
                     throw AppException(ErrorCode.COURSE_AUTH_DENIED)
                 }
             }
             GroupAuth.Role.TEAM -> {
-                val teamId = request.getParameter("team-id")?.toLongOrNull()
+                val teamId = request.getParameter("teamId")?.toLongOrNull()
                     ?: throw AppException(ErrorCode.INVALID_TEAM_ID)
                 if (!belongingRepository.existsByTeamIdAndUserId(teamId, user.id)) {
                     throw AppException(ErrorCode.TEAM_AUTH_DENIED)
