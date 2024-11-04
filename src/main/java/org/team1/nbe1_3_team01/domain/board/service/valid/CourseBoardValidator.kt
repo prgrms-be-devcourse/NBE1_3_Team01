@@ -21,7 +21,7 @@ object CourseBoardValidator {
         }
     }
 
-    fun validateAdminForNotice(user: User?, isNotice: Boolean) {
+    fun validateAdminForNotice(user: User, isNotice: Boolean) {
         if (isNotice) {
             SecurityUtil.validateAdmin(user)
         }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.team1.nbe1_3_team01.global.auth.interceptor.AuthInterceptor;
+import org.team1.nbe1_3_team01.global.security.AuthInterceptor;
 
 @Configuration
 @RequiredArgsConstructor

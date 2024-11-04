@@ -19,7 +19,7 @@ class MainBoardController(
 
     @GetMapping
     fun courseBoardListForMain(): ResponseEntity<Response<MainCourseBoardListResponse>> {
-        val courseBoardListForMain = mainBoardService.courseBoardListForMain
+        val courseBoardListForMain = mainBoardService.courseBoardListForMain()
 
         return ResponseEntity.ok()
             .body(Response.success(courseBoardListForMain))
