@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
 import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository
-import org.team1.nbe1_3_team01.domain.user.entity.Role
 import org.team1.nbe1_3_team01.domain.user.repository.UserRepository
 import org.team1.nbe1_3_team01.global.auth.interceptor.GroupAuth
 import org.team1.nbe1_3_team01.global.exception.AppException
@@ -28,13 +27,14 @@ class AuthInterceptor(
 
         val annotation = handler.getMethodAnnotation(GroupAuth::class.java) ?: return true
 
-        if (annotation.role == GroupAuth.Role.ADMIN) return true
-
         val username = SecurityUtil.getCurrentUsername()
         val user = userRepository.findByUsername(username)
             ?: throw AppException(ErrorCode.USER_NOT_FOUND)
 
         when (annotation.role) {
+            GroupAuth.Role.ADMIN -> {
+                return true
+            }
             GroupAuth.Role.COURSE -> {
                 val courseId = request.getParameter("course-id")?.toLongOrNull()
                     ?: throw AppException(ErrorCode.INVALID_COURSE_ID)
@@ -48,9 +48,6 @@ class AuthInterceptor(
                 if (!belongingRepository.existsByTeamIdAndUserId(teamId, user.id)) {
                     throw AppException(ErrorCode.TEAM_AUTH_DENIED)
                 }
-            }
-            GroupAuth.Role.ADMIN -> {
-                return true
             }
         }
 
