@@ -13,6 +13,9 @@ import org.team1.nbe1_3_team01.global.util.Response
 import org.team1.nbe1_3_team01.global.util.SecurityUtil
 import java.net.URI
 import jakarta.validation.Valid
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
+import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendancePage
 
 @RestController
 @RequestMapping("/api/attendances")
@@ -25,10 +28,12 @@ class AttendanceController(
      * 자신의 출결 요청 보기
      */
     @GetMapping
-    fun getMyAttendances(): ResponseEntity<Response<List<AttendanceResponse>>> {
+    fun getMyAttendances(
+        @PageableDefault pageable: Pageable
+    ): ResponseEntity<Response<AttendancePage>> {
         val currentUsername = SecurityUtil.getCurrentUsername()
 
-        val attendances = attendanceQueryService.getMyAttendances(currentUsername)
+        val attendances = attendanceQueryService.getMyAttendances(pageable, currentUsername)
         return ResponseEntity.ok(Response.success(attendances))
     }
 
