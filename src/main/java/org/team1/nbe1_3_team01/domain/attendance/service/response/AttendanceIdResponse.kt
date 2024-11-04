@@ -1,15 +1,13 @@
-package org.team1.nbe1_3_team01.domain.attendance.service.response;
+package org.team1.nbe1_3_team01.domain.attendance.service.response
 
-import lombok.Builder;
-
-@Builder
-public record AttendanceIdResponse(
-        Long attendanceId
+data class AttendanceIdResponse(
+    val attendanceId: Long
 ) {
-
-    public static AttendanceIdResponse from(Long attendanceId) {
-        return AttendanceIdResponse.builder()
-                .attendanceId(attendanceId)
-                .build();
+    companion object {
+        fun from(attendanceId: Long): AttendanceIdResponse {
+            return AttendanceIdResponse (
+                attendanceId = attendanceId
+            )
+        }
     }
 }
