@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.ir.backend.js.compile
+
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.jpa") version "2.0.21"
@@ -74,6 +76,8 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
 }
 
 tasks.named<Test>("test") {
