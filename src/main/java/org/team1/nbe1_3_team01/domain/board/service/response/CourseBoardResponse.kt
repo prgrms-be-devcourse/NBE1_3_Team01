@@ -4,14 +4,13 @@ import lombok.*
 import org.team1.nbe1_3_team01.domain.board.service.converter.DateTimeToStringConverter
 import java.time.LocalDateTime
 
-@Getter
-@ToString
-class CourseBoardResponse @Builder private constructor(
-    private val id: Long?,
-    private val title: String?,
-    private val writer: String?,
-    private val createdAt: String?,
-    private val readCount: Long?
+
+data class CourseBoardResponse (
+    val id: Long?,
+    val title: String?,
+    val writer: String?,
+    val createdAt: String?,
+    val readCount: Long?
 ) {
     companion object {
         fun of(

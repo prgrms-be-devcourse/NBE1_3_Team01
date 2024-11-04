@@ -5,7 +5,6 @@ import org.team1.nbe1_3_team01.domain.board.service.converter.DateTimeToStringCo
 import java.time.LocalDateTime
 
 
-@ToString
 data class TeamBoardResponse (
     val id: Long?,
     val title: String?,
