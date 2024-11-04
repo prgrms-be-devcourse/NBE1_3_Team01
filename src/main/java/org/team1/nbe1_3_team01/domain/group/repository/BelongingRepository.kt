@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.team1.nbe1_3_team01.domain.group.entity.Belonging
+import org.team1.nbe1_3_team01.domain.group.entity.Team
 import org.team1.nbe1_3_team01.domain.user.entity.User
 import java.util.*
 
@@ -51,4 +52,6 @@ interface BelongingRepository : JpaRepository<Belonging, Long> {
                 "where b.user = :user"
     )
     fun findByUser(@Param("user") user: User): List<Belonging>
+
+    fun findByTeamAndUser(team: Team, user: User): Belonging?
 }

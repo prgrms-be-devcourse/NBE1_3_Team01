@@ -8,6 +8,7 @@ import org.team1.nbe1_3_team01.domain.group.controller.request.*
 import org.team1.nbe1_3_team01.domain.group.entity.Belonging
 import org.team1.nbe1_3_team01.domain.group.entity.QTeam.team
 import org.team1.nbe1_3_team01.domain.group.entity.Team
+import org.team1.nbe1_3_team01.domain.group.entity.TeamType
 import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository
 import org.team1.nbe1_3_team01.domain.group.repository.TeamRepository
 import org.team1.nbe1_3_team01.domain.group.service.response.TeamResponse
@@ -80,6 +81,27 @@ class TeamService(
 
         team.name = teamNameUpdateRequest.name
         return Message(team.id.toString())
+    }
+
+    fun teamLeaderUpdate(teamLeaderUpdateRequest: TeamLeaderUpdateRequest, teamType: TeamType): Message {
+        val curUser = userRepository.findByUsername(SecurityUtil.getCurrentUsername())
+            ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+        val leaderBelonging = belongingRepository.findByTeamIdAndIsOwner(teamLeaderUpdateRequest.teamId, true)
+            ?: throw AppException(ErrorCode.TEAM_NOT_FOUND)
+        val newLeader = userRepository.findByIdOrNull(teamLeaderUpdateRequest.newLeaderId)
+            ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+        leaderBelonging.team?.let {
+            if (it.teamType != teamType) throw AppException(ErrorCode.INVALID_TEAM_ID)
+            if (teamType == TeamType.STUDY) TeamValidator.validateTeamLeader(it, curUser)
+            val newLeaderBelonging = belongingRepository.findByTeamAndUser(it, newLeader)
+                ?: throw AppException(ErrorCode.BELONGING_NOT_FOUND)
+            leaderBelonging.isOwner = false
+            newLeaderBelonging.isOwner = true
+
+            return Message(newLeaderBelonging.id.toString())
+        }
+
+        return Message("오류를 반환해야 합니다.")
     }
 
     fun teamAddMember(teamMemberAddRequest: TeamMemberAddRequest): Message {
