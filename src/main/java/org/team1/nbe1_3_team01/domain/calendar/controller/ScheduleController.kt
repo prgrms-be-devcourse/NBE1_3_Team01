@@ -10,7 +10,6 @@ import org.team1.nbe1_3_team01.domain.calendar.application.response.ScheduleResp
 import org.team1.nbe1_3_team01.domain.calendar.controller.dto.ScheduleCreateRequest
 import org.team1.nbe1_3_team01.domain.calendar.controller.dto.ScheduleDeleteRequest
 import org.team1.nbe1_3_team01.domain.calendar.controller.dto.ScheduleUpdateRequest
-import org.team1.nbe1_3_team01.domain.user.entity.Role
 import org.team1.nbe1_3_team01.global.auth.interceptor.GroupAuth
 import org.team1.nbe1_3_team01.global.util.Response
 import java.net.URI
@@ -38,7 +37,7 @@ class ScheduleController(
     /**
      * 팀 내 일정 상세 조회
      */
-    @GroupAuth(role = Role.TEAM)
+    @GroupAuth(role = GroupAuth.Role.TEAM)
     @GetMapping("/teams/{id}")
     fun getTeamSchedule(
         @PathVariable("id") teamScheduleId: Long
@@ -50,7 +49,7 @@ class ScheduleController(
     /**
      * 공지 일정 조회
      */
-    @GroupAuth(role = Role.COURSE)
+    @GroupAuth(role = GroupAuth.Role.COURSE)
     @GetMapping("/commons")
     fun getNoticeSchedules(
         @RequestParam("course-id") courseId: Long
@@ -62,7 +61,7 @@ class ScheduleController(
     /**
      * 공지 일정 상세 조회
      */
-    @GroupAuth(role = Role.COURSE)
+    @GroupAuth(role = GroupAuth.Role.COURSE)
     @GetMapping("/commons/{id}")
     fun getNoticeSchedule(
         @PathVariable("id") courseScheduleId: Long
@@ -74,7 +73,7 @@ class ScheduleController(
     /**
      * 일정 등록
      */
-    @GroupAuth(role = Role.TEAM)
+    @GroupAuth(role = GroupAuth.Role.TEAM)
     @PostMapping
     fun registerSchedule(
         @RequestParam("team-id") teamId: Long,
@@ -88,7 +87,7 @@ class ScheduleController(
     /**
      * 일정 수정
      */
-    @GroupAuth(role = Role.TEAM)
+    @GroupAuth(role = GroupAuth.Role.TEAM)
     @PatchMapping
     fun updateSchedule(
         @RequestBody scheduleUpdateRequest: ScheduleUpdateRequest
@@ -100,7 +99,7 @@ class ScheduleController(
     /**
      * 일정 삭제
      */
-    @GroupAuth(role = Role.TEAM)
+    @GroupAuth(role = GroupAuth.Role.TEAM)
     @DeleteMapping
     fun deleteSchedule(
         @RequestBody scheduleDeleteRequest: ScheduleDeleteRequest
