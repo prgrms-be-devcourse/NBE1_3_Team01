@@ -16,7 +16,6 @@ import org.team1.nbe1_3_team01.domain.user.repository.UserRepository
 import org.team1.nbe1_3_team01.global.exception.AppException
 import org.team1.nbe1_3_team01.global.util.ErrorCode
 import java.time.LocalDateTime
-import java.util.stream.Collectors
 
 @Service
 @RequiredArgsConstructor
@@ -109,7 +108,7 @@ class ParticipantService {
 
         val channelResponses = participants.mapNotNull { participant ->
             participant?.channel?.let { channel ->
-                val lastChat = chatRepository?.findTopByChannelIdOrderByCreatedAtDesc(channel.id!!)
+                val lastChat = chatRepository?.findTopByIdOrderByCreatedAtDesc(channel.id!!)
 
                 ChannelResponse(
                     channelId = channel.id!!,
