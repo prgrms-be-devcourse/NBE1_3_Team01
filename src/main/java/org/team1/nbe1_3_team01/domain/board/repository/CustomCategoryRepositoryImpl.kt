@@ -1,11 +1,12 @@
+package org.team1.nbe1_3_team01.domain.board.repository
+
 import com.querydsl.core.Tuple
 import com.querydsl.jpa.impl.JPAQueryFactory
+import org.springframework.stereotype.Repository
 import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse.Companion.of
-import org.springframework.stereotype.Repository
 import org.team1.nbe1_3_team01.domain.board.entity.QCategory.category
 import org.team1.nbe1_3_team01.domain.board.entity.QTeamBoard.teamBoard
-import org.team1.nbe1_3_team01.domain.board.repository.CustomCategoryRepository
 
 @Repository
 class CustomCategoryRepositoryImpl(
