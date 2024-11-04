@@ -38,7 +38,7 @@ data class TeamBoard (
     @UpdateTimestamp
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 
-    @OneToMany(mappedBy = "team_board", orphanRemoval = true)
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     val comments: MutableList<Comment> = mutableListOf()
 ) {
     init {
