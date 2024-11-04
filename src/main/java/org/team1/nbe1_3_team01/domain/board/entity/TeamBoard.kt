@@ -32,8 +32,6 @@ data class TeamBoard (
     @Column(columnDefinition = "TEXT")
     var content: String,
 
-    var readCount: Long = 0L,
-
     @CreationTimestamp
     val createdAt: LocalDateTime? = null,
 

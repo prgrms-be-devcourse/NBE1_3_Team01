@@ -24,7 +24,7 @@ class CommentController(
      */
     @GetMapping
     fun getComments(
-        @RequestParam commentId: Long?,
+        @RequestParam(required = false) commentId: Long?,
         @RequestParam boardId: Long?
     ): ResponseEntity<Response<List<CommentResponse?>?>> {
         val reviews = commentService.getReviewsByPage(boardId, commentId)

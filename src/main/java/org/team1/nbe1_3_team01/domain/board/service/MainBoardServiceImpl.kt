@@ -21,24 +21,22 @@ open class MainBoardServiceImpl(
 ) : MainBoardService {
 
 
-    override val courseBoardListForMain: MainCourseBoardListResponse
-        get() {
-            val currentUser = currentUser
-            val courseId = currentUser.course.id
-
-            return getMainCourseBoardListResponse(courseId)
-        }
+    override fun courseBoardListForMain(): MainCourseBoardListResponse {
+        val courseId = currentUser().course?.id!!
+        return getMainCourseBoardListResponse(courseId)
+    }
 
     override fun getMainCourseBoardForAdmin(courseId: Long): MainCourseBoardListResponse {
         return getMainCourseBoardListResponse(courseId)
     }
 
-    private val currentUser: User
-        get() {
-            val currentUsername = SecurityUtil.getCurrentUsername()
-            return userRepository.findByUsername(currentUsername)
-                .orElseThrow { AppException(ErrorCode.USER_NOT_FOUND) }
-        }
+
+
+    private fun currentUser(): User {
+        val currentUsername = SecurityUtil.getCurrentUsername()
+        return userRepository.findByUsername(currentUsername)
+            ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+    }
 
     private fun getMainCourseBoardListResponse(courseId: Long): MainCourseBoardListResponse {
         val noticeBoards = courseBoardRepository.findAllCourseBoard(

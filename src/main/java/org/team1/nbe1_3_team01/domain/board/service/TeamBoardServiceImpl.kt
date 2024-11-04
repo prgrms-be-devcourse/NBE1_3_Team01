@@ -11,6 +11,7 @@ import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardUpdateReques
 import org.team1.nbe1_3_team01.domain.board.entity.TeamBoard
 import org.team1.nbe1_3_team01.domain.board.repository.TeamBoardRepository
 import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse
 import org.team1.nbe1_3_team01.domain.board.service.valid.CourseBoardValidator
 import org.team1.nbe1_3_team01.domain.board.service.valid.TeamBoardValidator
@@ -44,7 +45,7 @@ open class TeamBoardServiceImpl (
     }
 
     override fun addTeamBoard(request: TeamBoardRequest): Message {
-        val currentUser = currentUser
+        val currentUser = currentUser()
         val teamId = request.teamId
         val team = teamRepository.findById(teamId)
             .orElseThrow { AppException(ErrorCode.TEAM_NOT_FOUND) }
@@ -55,15 +56,14 @@ open class TeamBoardServiceImpl (
         return Message(MessageContent.getAddMessage(request.isNotice))
     }
 
-    @Transactional(readOnly = true)
     override fun getTeamBoardDetailById(teamBoardId: Long): BoardDetailResponse {
         return teamBoardRepository.findTeamBoardDetailById(teamBoardId)
-            .orElseThrow { AppException(ErrorCode.BOARD_NOT_FOUND) }
+            ?: throw AppException(ErrorCode.BOARD_NOT_FOUND)
     }
 
     override fun updateTeamBoard(updateRequest: TeamBoardUpdateRequest): Message {
         val teamBoardId = updateRequest.teamBoardId
-        val findTeamBoard = getBoardWithValidateUser(teamBoardId, false)
+        val findTeamBoard = getBoardWithValidateUser(teamBoardId)
         findTeamBoard.updateTeamBoard(updateRequest)
 
         return Message(MessageContent.getUpdateMessage(false))
@@ -71,25 +71,31 @@ open class TeamBoardServiceImpl (
 
     override fun deleteTeamBoardById(deleteRequest: BoardDeleteRequest): Message {
         val teamBoardId = deleteRequest.boardId
-        val findTeamBoard = getBoardWithValidateUser(teamBoardId, false)
+        val findTeamBoard = getBoardWithValidateUser(teamBoardId)
 
         teamBoardRepository.delete(findTeamBoard)
         return Message(MessageContent.getDeleteMessage(false))
     }
 
-    private val currentUser: User
-        get() {
-            val currentUsername = SecurityUtil.getCurrentUsername()
-            return userRepository.findByUsername(currentUsername)
-                .orElseThrow { AppException(ErrorCode.USER_NOT_FOUND) }
-        }
+    override fun getPaginationInfo(request: TeamBoardListRequest): List<PagingResponse> {
+        return teamBoardRepository.findPaginationInfo(
+            request.teamId,
+            request.categoryId
+        )
+    }
 
-    private fun getBoardWithValidateUser(boardId: Long, isNotice: Boolean): TeamBoard {
+    private fun currentUser(): User {
+        val currentUsername = SecurityUtil.getCurrentUsername()
+        return userRepository.findByUsername(currentUsername)
+            ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+    }
+
+    private fun getBoardWithValidateUser(boardId: Long): TeamBoard {
         val findBoard = getTeamBoardById(boardId)!!
-        val user = currentUser
+        val user = currentUser()
 
         TeamBoardValidator.validateWriter(findBoard, user)
-        CourseBoardValidator.validateAdminForNotice(user, isNotice)
+        CourseBoardValidator.validateAdminForNotice(user, false)
         return findBoard
     }
 
@@ -97,5 +103,7 @@ open class TeamBoardServiceImpl (
         return teamBoardRepository.findById(boardId)
             .orElseThrow { AppException(ErrorCode.BOARD_NOT_FOUND) }
     }
+
+
 
 }

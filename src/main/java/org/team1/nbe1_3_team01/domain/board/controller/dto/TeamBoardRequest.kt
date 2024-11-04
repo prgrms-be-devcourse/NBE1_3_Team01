@@ -12,8 +12,6 @@ class TeamBoardRequest(
     @Positive(message = "필수 파라미터 형식 오류")
     var teamId: Long,
 
-    @NotNull(message = "필수 파라미터 누락")
-    @Positive(message = "필수 파라미터 형식 오류")
     var categoryId: Long,
 
     @NotBlank(message = "제목은 필수 입력값입니다.")

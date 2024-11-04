@@ -23,8 +23,6 @@ data class CourseBoard(
     @UpdateTimestamp
     var updatedAt: LocalDateTime? = null,
 
-    var readCount: Long = 0L,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     var course: Course,
