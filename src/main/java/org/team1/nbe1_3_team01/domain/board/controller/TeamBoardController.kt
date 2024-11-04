@@ -29,7 +29,7 @@ class TeamBoardController(
      */
     @GetMapping
     fun getTeamBoardList(
-        @ModelAttribute request: TeamBoardListRequest?
+        @ModelAttribute request: TeamBoardListRequest
     ): ResponseEntity<Response<List<TeamBoardResponse?>?>> {
         val boardList = teamBoardService.getTeamBoardListByType(request!!)
         return ResponseEntity.ok()

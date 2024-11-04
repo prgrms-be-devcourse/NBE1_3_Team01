@@ -4,12 +4,12 @@ import com.querydsl.core.Tuple
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
-import lombok.RequiredArgsConstructor
 import org.team1.nbe1_3_team01.domain.board.entity.QCategory.category
 import org.team1.nbe1_3_team01.domain.board.entity.QComment.comment
 import org.team1.nbe1_3_team01.domain.board.entity.QTeamBoard.teamBoard
 import org.team1.nbe1_3_team01.domain.board.entity.QTeamReadCount.teamReadCount
 import org.team1.nbe1_3_team01.domain.board.entity.TeamReadCount
+import org.team1.nbe1_3_team01.domain.board.service.converter.DateTimeToStringConverter
 import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse
@@ -19,7 +19,6 @@ import org.team1.nbe1_3_team01.domain.user.entity.User
 import org.team1.nbe1_3_team01.global.util.SecurityUtil
 import java.util.concurrent.atomic.AtomicInteger
 
-@RequiredArgsConstructor
 class CustomTeamBoardRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
     private val entityManager: EntityManager
@@ -64,6 +63,14 @@ class CustomTeamBoardRepositoryImpl(
             .innerJoin(user).on(teamBoard.user.eq(user))
             .leftJoin(teamReadCount).on(teamReadCount.teamBoardId.eq(teamBoard.id))
             .where(teamBoard.id.eq(teamBoardId))
+            .groupBy(
+                teamBoard.id,
+                teamBoard.title,
+                teamBoard.content,
+                user.name,
+                teamBoard.createdAt,
+                teamBoard.user.id
+            )
             .fetchOne()
 
         return if(tuple == null) null else {
@@ -76,7 +83,7 @@ class CustomTeamBoardRepositoryImpl(
 
             if (readLog == null && !tuple.get(teamBoard.user.id)!!.equals(currentUser.id)) {
                 val newReadCount = TeamReadCount(
-                    userId = currentUser.id!!,
+                    userId = currentUser.id,
                     teamBoardId = teamBoardId
                 )
                 entityManager.persist(newReadCount)
@@ -95,7 +102,7 @@ class CustomTeamBoardRepositoryImpl(
                FROM team_board
                WHERE team_board.id = :teamId
                ) subquery WHERE subquery.row_num % 10 = 1 and subquery.row_num > 10
-               ORDER BY subquery.row_num DESC"
+               ORDER BY subquery.row_num DESC
             """.trimIndent()
         } else {
             """
@@ -141,12 +148,12 @@ class CustomTeamBoardRepositoryImpl(
                 category.name,
                 teamReadCount.id.count(),
                 teamBoard.createdAt,
-                comment.count()
+                comment.id.count()
             )
             .from(teamBoard)
             .innerJoin(user).on(teamBoard.user.eq(user))
             .leftJoin(teamReadCount).on(teamReadCount.teamBoardId.eq(teamBoard.id))
-            .leftJoin(category).on(category.id.eq(categoryId))
+            .leftJoin(category).on(category.id.eq(teamBoard.categoryId))
             .leftJoin(comment).on(comment.board.eq(teamBoard))
             .where(teamBoard.team.id.eq(teamId))
 
@@ -169,12 +176,12 @@ class CustomTeamBoardRepositoryImpl(
     }
 
     private fun convertToTeamBoardResponse(tuple: Tuple): TeamBoardResponse {
-        return TeamBoardResponse.of(
+        return TeamBoardResponse(
             id = tuple[teamBoard.id],
             categoryName = tuple[category.name] ?: "기타",
             title = tuple[teamBoard.title],
             writer = tuple[user.name],
-            createdAt = tuple[teamBoard.createdAt],
+            createdAt = DateTimeToStringConverter.convert(tuple[teamBoard.createdAt]),
             readCount = tuple[teamReadCount.id.count()] ?: 0L,
             commentCount = tuple[comment.count()]?: 0L
         )
@@ -182,14 +189,14 @@ class CustomTeamBoardRepositoryImpl(
 
     private fun convertToBoardDetailResponse(tuple: Tuple, currentUser: User?, flag: Boolean): BoardDetailResponse {
         val addCount = if (flag) 1L else 0L
-        return BoardDetailResponse.of(
+        return BoardDetailResponse(
             id = tuple.get(teamBoard.id),
             title = tuple.get(teamBoard.title),
             readCount = (tuple.get(teamReadCount.id.count()) ?: 0L) + addCount,
             content = tuple.get(teamBoard.content),
             writer = tuple.get(user.name),
             categoryName = tuple.get(category.name) ?: "기타",
-            createdAt = tuple.get(teamBoard.createdAt),
+            createdAt = DateTimeToStringConverter.convert(tuple[teamBoard.createdAt]),
             isAdmin = currentUser!!.role == Role.ADMIN,
             isMine = tuple.get(teamBoard.user.id) == currentUser.id
         )
