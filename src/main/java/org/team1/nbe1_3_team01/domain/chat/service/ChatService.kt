@@ -94,7 +94,6 @@ class ChatService {
     }
 
 
-    // 채팅 삭제하기
     fun deleteMessage(chatId: Long?, userId: Long?) {
         // chat 확인
         val chat: Chat = chatId?.let {
@@ -109,29 +108,29 @@ class ChatService {
         chatRepository?.delete(chat)
     }
 
-    // 채팅 만들기
-    @Transactional
-    fun createChat(channelId: Long, message: String, userId: Long?): Chat {
-        val participantPK = ParticipantPK(userId, channelId)
-
-
-        val participant: Participant = participantRepository?.findById(participantPK)
-            ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) } as Participant // 캐스팅
-
-        // 채널 ID를 통해 참가자가 해당 채널에 소속되어 있는지 확인
-        if (participant.channelId != channelId) {
-            throw AppException(ErrorCode.NO_PARTICIPANTS)
-        }
-
-        // 채팅 생성 및 저장
-        return chatRepository?.save(
-            Chat(
-                content = message,
-                createdAt = LocalDateTime.now(),
-                participant = participant
-            )
-        ) ?: throw AppException(ErrorCode.CHAT_REPOSITORY_NOT_FOUND)
-    }
+//    // 채팅 만들기
+//    @Transactional
+//    fun createChat(channelId: Long, message: String, userId: Long?): Chat {
+//        val participantPK = ParticipantPK(userId, channelId)
+//
+//
+//        val participant: Participant = participantRepository?.findById(participantPK)
+//            ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) } as Participant // 캐스팅
+//
+//        // 채널 ID를 통해 참가자가 해당 채널에 소속되어 있는지 확인
+//        if (participant.channelId != channelId) {
+//            throw AppException(ErrorCode.NO_PARTICIPANTS)
+//        }
+//
+//        // 채팅 생성 및 저장
+//        return chatRepository?.save(
+//            Chat(
+//                content = message,
+//                createdAt = LocalDateTime.now(),
+//                participant = participant
+//            )
+//        ) ?: throw AppException(ErrorCode.CHAT_REPOSITORY_NOT_FOUND)
+//    }
 
 
     // 채팅 불러오기

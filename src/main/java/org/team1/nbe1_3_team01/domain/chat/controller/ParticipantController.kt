@@ -19,7 +19,7 @@ class ParticipantController(private val participantService: ParticipantService)
     // 참여자가 스스로 방 아이디를 치고 들어오는 경우
     @PostMapping("/join")
     fun joinChannel(@RequestBody channelRequest: ChannelRequest): ResponseEntity<Response<ParticipantResponse>> {
-        val participantResponse = participantService.joinChannel(channelRequest.channelId, channelRequest.userId)
+        val participantResponse = participantService.joinChannel(channelRequest.channelId)
         return ResponseEntity.ok().body(Response.success(participantResponse))
     }
 
@@ -31,9 +31,9 @@ class ParticipantController(private val participantService: ParticipantService)
     }
 
     // 참여자가 속해 있는 채널들 보기
-    @GetMapping("/{userId}/show")
-    fun checkUserChannels(@PathVariable("userId") userId: Long): ResponseEntity<Response<List<ChannelResponse>>> {
-        val responses = participantService.checkUserChannel(userId)
+    @GetMapping("/show")
+    fun checkUserChannels(): ResponseEntity<Response<List<ChannelResponse>>> {
+        val responses = participantService.checkUserChannel()
         return ResponseEntity.ok().body(Response.success(responses))
     }
 

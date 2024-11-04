@@ -1,6 +1,5 @@
 package org.team1.nbe1_3_team01.domain.chat.service
 
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.team1.nbe1_3_team01.domain.chat.entity.Channel
@@ -21,7 +20,7 @@ open class ChannelService(
     private val userChannelUtil: UserChannelUtil
 ) {
 
-    // 채널 목록 전체 조회
+    //단순 채널 목록 전체 조회
     fun showAllChannel(): List<String> {
         return channelRepository.findAllChannelName().orEmpty()
             .filterNotNull()

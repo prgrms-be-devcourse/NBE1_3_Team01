@@ -44,13 +44,11 @@ enum class ErrorCode(
     INVITER_NOT_FOUND(HttpStatus.NOT_FOUND, "초대자를 찾을 수 없음."),
     NOT_CHANEL_CREATOR(HttpStatus.FORBIDDEN, "채널 생성자만이 초대를 할 수 있습니다."),
     PARTICIPANTS_NOT_FOUND(HttpStatus.NOT_FOUND, "참여자가 채널에 존재하지 않습니다."),
-    CHANNEL_ID_NULL(HttpStatus.BAD_REQUEST, "채널 ID가 null입니다."), // 추가된 부분
     NOT_CHANEL_DELETE(HttpStatus.FORBIDDEN, "채널 생성자만이 삭제를 할 수 있습니다."),
     NOT_CHAT(HttpStatus.NOT_FOUND, "해당 채널에 대한 채팅방이 존재하지 않습니다."),
     NOT_CHAT_MESSAGE(HttpStatus.NOT_FOUND, "해당 채팅이 없습니다."),
     USER_NOT_AUTHORIZE(HttpStatus.FORBIDDEN, "채팅을 친 사람만 삭제할 수 있습니다."),
-    CHAT_REPOSITORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 저장소가 없습니다."),
-
+    ALREADY_PARTICIPANT(HttpStatus.FORBIDDEN, "이미 참여중인 참여자입니다."),
     //calender
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다."),
     ACCESS_TYPE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "지원하지 않는 접근 타입입니다."),
