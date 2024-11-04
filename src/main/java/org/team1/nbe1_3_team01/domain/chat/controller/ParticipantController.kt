@@ -1,6 +1,5 @@
 package org.team1.nbe1_3_team01.domain.chat.controller
 
-import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -15,28 +14,26 @@ import org.team1.nbe1_3_team01.global.util.Response
 
 @RequestMapping("/api/participants")
 @RestController
-@RequiredArgsConstructor
-class ParticipantController {
-    private val participantService: ParticipantService? = null
-
+class ParticipantController(private val participantService: ParticipantService)
+{
     // 참여자가 스스로 방 아이디를 치고 들어오는 경우
     @PostMapping("/join")
     fun joinChannel(@RequestBody channelRequest: ChannelRequest): ResponseEntity<Response<ParticipantResponse>> {
-        val participantResponse = participantService!!.joinChannel(channelRequest.channelId, channelRequest.userId)
+        val participantResponse = participantService.joinChannel(channelRequest.channelId, channelRequest.userId)
         return ResponseEntity.ok().body(Response.success(participantResponse))
     }
 
     // 방장(생성자) -> 참여자를 초대
     @PostMapping("/invite")
     fun inviteUser(@RequestBody inviteRequest: InviteRequest): ResponseEntity<Void> {
-        participantService!!.inviteUser(inviteRequest)
+        participantService.inviteUser(inviteRequest)
         return ResponseEntity.status(HttpStatus.OK).build()
     }
 
     // 참여자가 속해 있는 채널들 보기
     @GetMapping("/{userId}/show")
     fun checkUserChannels(@PathVariable("userId") userId: Long): ResponseEntity<Response<List<ChannelResponse>>> {
-        val responses = participantService!!.checkUserChannel(userId)
+        val responses = participantService.checkUserChannel(userId)
         return ResponseEntity.ok().body(Response.success(responses))
     }
 
@@ -44,7 +41,7 @@ class ParticipantController {
     @DeleteMapping("/leave")
     fun leaveChannel(@RequestBody channelRequest: ChannelRequest): ResponseEntity<Void> {
         val participantPK = ParticipantPK(channelRequest.userId, channelRequest.channelId)
-        participantService!!.leaveChannel(participantPK)
+        participantService.leaveChannel(participantPK)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
@@ -52,7 +49,7 @@ class ParticipantController {
     @DeleteMapping("/kickOut")
     fun removeParticipant(@RequestBody kickOutRequest: KickOutRequest): ResponseEntity<String> {
         val creator = ParticipantPK(kickOutRequest.creatorId, kickOutRequest.channelId)
-        participantService!!.removeParticipant(creator, kickOutRequest.participantIdToRemove)
+        participantService.removeParticipant(creator, kickOutRequest.participantIdToRemove)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }
