@@ -73,6 +73,7 @@ dependencies {
     kapt("jakarta.persistence:jakarta.persistence-api")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 }
 
 tasks.named<Test>("test") {
