@@ -1,6 +1,5 @@
 package org.team1.nbe1_3_team01.domain.chat.controller
 
-import lombok.RequiredArgsConstructor
 import org.springframework.core.io.ResourceLoader
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -12,9 +11,9 @@ import java.util.stream.Stream
 
 @RestController
 @RequestMapping("/api/emoticons")
-@RequiredArgsConstructor
-class EmoticonController {
-    private val resourceLoader: ResourceLoader? = null
+class EmoticonController(
+    private val resourceLoader: ResourceLoader
+) {
 
     @get:Throws(IOException::class)
     @get:GetMapping
@@ -22,7 +21,7 @@ class EmoticonController {
         // 이모티콘 조회용 메소드
         get() {
             val emoticonPath = "classpath:static/emoticons/"
-            val folder = resourceLoader!!.getResource(emoticonPath).file
+            val folder = resourceLoader.getResource(emoticonPath).file
 
             // 폴더 내의 모든 파일 URL 변환 후 주소로 변경
             return Stream.of(*folder.listFiles())

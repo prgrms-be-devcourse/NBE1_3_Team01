@@ -1,6 +1,5 @@
 package org.team1.nbe1_3_team01.domain.chat.service
 
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.team1.nbe1_3_team01.domain.chat.entity.Channel
@@ -21,7 +20,7 @@ open class ChannelService(
     private val userChannelUtil: UserChannelUtil
 ) {
 
-    // 채널 목록 전체 조회
+    //단순 채널 목록 전체 조회
     fun showAllChannel(): List<String> {
         return channelRepository.findAllChannelName().orEmpty()
             .filterNotNull()
@@ -29,9 +28,8 @@ open class ChannelService(
 
     // 채널 생성
     @Transactional
-    open fun createChannel(creatorUserId: Long, channelName: String): Long {
-        val creator: User = userRepository.findById(creatorUserId)
-            .orElseThrow { AppException(ErrorCode.INVITER_NOT_FOUND) }
+    open fun createChannel(channelName: String): Long {
+        val creator: User = userChannelUtil.currentUser()
 
         val channel = Channel.Builder()
             .channelName(channelName)
@@ -56,8 +54,9 @@ open class ChannelService(
 
     // 채널 수정
     @Transactional
-    open fun updateChannel(userId: Long, channelId: Long, channelName: String): Long {
-        val participant: Participant = userChannelUtil.findUser(userId, channelId)
+    open fun updateChannel(channelName: String): Long {
+        val userId: Long = userChannelUtil.currentUser().id
+        val participant: Participant = userChannelUtil.findUser(userId)
 
         if (!participant.isCreator) {
             throw AppException(ErrorCode.NOT_CHANEL_CREATOR)
@@ -73,8 +72,9 @@ open class ChannelService(
 
     // 채널 삭제
     @Transactional
-    open fun deleteChannel(userId: Long, channelId: Long) {
-        val participant: Participant = userChannelUtil.findUser(userId, channelId)
+    open fun deleteChannel(channelId: Long) {
+        val userId: Long = userChannelUtil.currentUser().id
+        val participant: Participant = userChannelUtil.findUser(userId)
 
         if (!participant.isCreator) {
             throw AppException(ErrorCode.NOT_CHANEL_DELETE)
