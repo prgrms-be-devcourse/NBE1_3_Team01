@@ -1,11 +1,9 @@
 package org.team1.nbe1_3_team01.domain.group.service.response
 
-import lombok.Builder
-import lombok.Data
 import org.team1.nbe1_3_team01.domain.group.entity.Team
 
-@Data
-class TeamResponse private constructor(
+
+data class TeamResponse (
     private val id: Long,
     private val courseName: String,
     private val teamType: String,
