@@ -4,15 +4,14 @@ import org.team1.nbe1_3_team01.domain.group.entity.Team
 
 
 data class TeamResponse (
-    private val id: Long,
-    private val courseName: String,
-    private val teamType: String,
-    private val name: String,
-    private val creationWaiting: Boolean,
-    private val deletionWaiting: Boolean
+    val id: Long,
+    val courseName: String,
+    val teamType: String,
+    val name: String,
+    val creationWaiting: Boolean,
+    val deletionWaiting: Boolean,
+    val belongings: MutableList<BelongingResponse> = mutableListOf()
 ) {
-    private val belongings: MutableList<BelongingResponse> = ArrayList()
-
     companion object {
         fun from(team: Team): TeamResponse {
             val teamResponse: TeamResponse = TeamResponse(
