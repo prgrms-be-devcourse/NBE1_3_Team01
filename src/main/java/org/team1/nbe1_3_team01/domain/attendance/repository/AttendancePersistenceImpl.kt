@@ -2,6 +2,9 @@ package org.team1.nbe1_3_team01.domain.attendance.repository
 
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.impl.JPAQueryFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse
 import org.team1.nbe1_3_team01.domain.attendance.entity.QAttendance.attendance
@@ -13,8 +16,8 @@ class AttendancePersistenceImpl(
     private val queryFactory: JPAQueryFactory
 ) : AttendancePersistence {
 
-    override fun findAll(): List<AttendanceResponse> {
-        return queryFactory.select(
+    override fun findAll(pageable: Pageable): Page<AttendanceResponse> {
+        val attendanceResponses: List<AttendanceResponse> = queryFactory.select(
             Projections.constructor(
                 AttendanceResponse::class.java,
                 attendance.id,
@@ -28,11 +31,19 @@ class AttendancePersistenceImpl(
         )
             .from(attendance)
             .innerJoin(user).on(attendance.registrant.userId.eq(user.id))
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
             .fetch()
+
+        val count: Long = queryFactory.select(attendance.count())
+            .from(attendance)
+            .fetchFirst()!!
+
+        return PageImpl(attendanceResponses, pageable, count)
     }
 
-    override fun findByUsername(username: String): List<AttendanceResponse> {
-        return queryFactory.select(
+    override fun findByUsername(pageable: Pageable, username: String): Page<AttendanceResponse> {
+        val attendanceResponses: List<AttendanceResponse> = queryFactory.select(
             Projections.constructor(
                 AttendanceResponse::class.java,
                 attendance.id,
@@ -47,7 +58,15 @@ class AttendancePersistenceImpl(
             .from(attendance)
             .innerJoin(user).on(attendance.registrant.userId.eq(user.id))
             .where(user.username.eq(username))
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
             .fetch()
+
+        val count: Long = queryFactory.select(attendance.count())
+            .from(attendance)
+            .fetchFirst()!!
+
+        return PageImpl(attendanceResponses, pageable, count)
     }
 
     override fun findById(id: Long): AttendanceResponse? {

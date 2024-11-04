@@ -1,6 +1,9 @@
 package org.team1.nbe1_3_team01.domain.attendance.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendancePage
 import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse
 import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendancePersistence
 import org.team1.nbe1_3_team01.global.exception.AppException
@@ -11,10 +14,15 @@ class AttendanceQueryService(
     private val attendancePersistence: AttendancePersistence
 ) {
 
-    fun getAll(): List<AttendanceResponse> = attendancePersistence.findAll()
+    fun getAll(pageable: Pageable): AttendancePage {
+        val responses: Page<AttendanceResponse> = attendancePersistence.findAll(pageable)
+        return AttendancePage.from(responses)
+    }
 
-    fun getMyAttendances(currentUsername: String): List<AttendanceResponse> =
-        attendancePersistence.findByUsername(currentUsername)
+    fun getMyAttendances(pageable: Pageable, currentUsername: String): AttendancePage {
+        val responses: Page<AttendanceResponse> = attendancePersistence.findByUsername(pageable, currentUsername)
+        return AttendancePage.from(responses)
+    }
 
     fun getById(id: Long): AttendanceResponse =
         attendancePersistence.findById(id) ?: throw AppException(ATTENDANCE_NOT_FOUND)
