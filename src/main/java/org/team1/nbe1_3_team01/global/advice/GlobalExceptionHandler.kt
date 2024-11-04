@@ -1,15 +1,14 @@
-import lombok.extern.slf4j.Slf4j
-import org.hibernate.query.sqm.tree.SqmNode.log
+package org.team1.nbe1_3_team01.global.advice
+
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.team1.nbe1_3_team01.global.util.Error
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.Error
 
-@Slf4j
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
@@ -18,7 +17,6 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<Error> {
-        log.error("Unhandled exception occurred: {}", e.message, e)
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error")
     }
 
@@ -27,8 +25,7 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(AppException::class)
     fun handleBoardExceptions(e: AppException): ResponseEntity<Error> {
-        log.error("Application exception: {}", e.message, e)
-        return buildErrorResponse(e.errorCode.status, e.errorCode.message)
+        return buildErrorResponse(e.errorCode.status, e.errorCode.getMessage())
     }
 
     /**
@@ -36,7 +33,6 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingServletRequestParameterException::class)
     fun handleRequestParameterException(e: MissingServletRequestParameterException): ResponseEntity<Error> {
-        log.error("Missing request parameter: {}", e.parameterName, e)
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "요청 파라미터 '${e.parameterName}'가 누락되었습니다.")
     }
 
@@ -46,12 +42,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(e: MethodArgumentNotValidException): ResponseEntity<Error> {
         val errors = e.bindingResult.fieldErrors.associate { it.field to it.defaultMessage }
-        log.error("Validation errors: {}", errors, e)
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errors)
     }
 
     // BadRequest 응답 생성
-    private fun buildErrorResponse(status: HttpStatus, message: Any?): ResponseEntity<Error> {
+    private fun buildErrorResponse(status: HttpStatus, message: Any): ResponseEntity<Error> {
         return ResponseEntity.status(status).body(Error.of(status.value(), message))
     }
 }

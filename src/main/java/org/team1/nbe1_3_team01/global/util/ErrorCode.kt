@@ -1,12 +1,10 @@
 package org.team1.nbe1_3_team01.global.util
 
-import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpStatus
 
-@RequiredArgsConstructor
 enum class ErrorCode(
     val status: HttpStatus,
-    val message: String
+    private val message: String
 ) {
     //jwtToken
     TOKEN_TIMEOUT(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다. 새로운 AccessToken을 요청하세요."),
@@ -83,12 +81,12 @@ enum class ErrorCode(
     PASSWORD_NOT_VALID(HttpStatus.BAD_REQUEST, "비밀번호가 올바르지 않습니다.")
     ;
 
-    var formattedMessage: String? = null
+    private var formattedMessage: String? = null
 
-    fun withArgs(vararg args: Any?): ErrorCode {
+    fun withArgs(vararg args: Any): ErrorCode {
         this.formattedMessage = String.format(message, *args)
         return this
     }
 
-    fun printMessage(): String = formattedMessage ?: message
+    fun getMessage(): String = formattedMessage ?: message
 }
