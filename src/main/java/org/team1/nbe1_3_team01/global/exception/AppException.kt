@@ -6,6 +6,6 @@ open class AppException(
     val errorCode: ErrorCode
 ) : RuntimeException() {
     override fun toString(): String {
-        return errorCode.message
+        return errorCode.getMessage()
     }
 }
