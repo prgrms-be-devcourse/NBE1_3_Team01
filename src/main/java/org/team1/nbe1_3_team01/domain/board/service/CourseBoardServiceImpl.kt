@@ -45,7 +45,7 @@ class CourseBoardServiceImpl(
     }
 
     override fun addCourseBoard(request: CourseBoardRequest): Message {
-        val user = currentUser
+        val user = currentUser()
         CourseBoardValidator.validateAdminForNotice(user, request.isNotice)
         val course =
             courseRepository.findById(request.courseId)
@@ -60,10 +60,9 @@ class CourseBoardServiceImpl(
         return Message(MessageContent.getAddMessage(request.isNotice))
     }
 
-    @Transactional(readOnly = true)
     override fun getCourseBoardDetailById(courseBoardId: Long): BoardDetailResponse {
         return courseBoardRepository.findCourseBoardDetailById(courseBoardId)
-            .orElseThrow { AppException(ErrorCode.BOARD_NOT_FOUND) }
+            ?: throw AppException(ErrorCode.BOARD_NOT_FOUND)
     }
 
     override fun updateCourseBoard(request: CourseBoardUpdateRequest): Message {
@@ -98,16 +97,15 @@ class CourseBoardServiceImpl(
         )
     }
 
-    private val currentUser: User
-        get() {
-            val currentUsername = SecurityUtil.getCurrentUsername() //id를 반환
-            return userRepository.findByUsername(currentUsername)
-                .orElseThrow { AppException(ErrorCode.USER_NOT_FOUND) }
-        }
+    private fun currentUser(): User {
+        val currentUsername = SecurityUtil.getCurrentUsername() // ID 반환
+        return userRepository.findByUsername(currentUsername)
+            ?: throw AppException(ErrorCode.USER_NOT_FOUND)
+    }
 
     private fun getBoardWithValidateUser(boardId: Long, isNotice: Boolean): CourseBoard {
         val findBoard = getCourseBoardById(boardId)
-        val user = currentUser
+        val user = currentUser()
 
         CourseBoardValidator.validateWriter(findBoard, user)
         CourseBoardValidator.validateAdminForNotice(user, isNotice)

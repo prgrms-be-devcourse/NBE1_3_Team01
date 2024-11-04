@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 object DateTimeToStringConverter {
     @JvmStatic
-    fun convert(dateTime: LocalDateTime?): String? {
-        return dateTime?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    fun convert(dateTime: LocalDateTime?): String {
+        return dateTime?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))?:""
     }
 }

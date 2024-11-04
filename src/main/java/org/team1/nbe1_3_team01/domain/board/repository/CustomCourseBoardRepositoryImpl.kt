@@ -5,8 +5,10 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
 import lombok.RequiredArgsConstructor
+import org.hibernate.query.results.Builders.fetch
 import org.team1.nbe1_3_team01.domain.board.constants.CommonBoardType
 import org.team1.nbe1_3_team01.domain.board.entity.QCourseBoard.courseBoard
+import org.team1.nbe1_3_team01.domain.board.entity.QCourseReadCount.courseReadCount
 import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.CourseBoardResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
@@ -14,7 +16,6 @@ import org.team1.nbe1_3_team01.domain.user.entity.QUser.user
 import org.team1.nbe1_3_team01.domain.user.entity.Role
 import org.team1.nbe1_3_team01.domain.user.entity.User
 import org.team1.nbe1_3_team01.global.util.SecurityUtil
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 @RequiredArgsConstructor
@@ -33,6 +34,10 @@ class CustomCourseBoardRepositoryImpl(
         val results = query
             .limit(PAGE_SIZE.toLong())
             .orderBy(courseBoard.createdAt.desc(), courseBoard.id.desc())
+            .groupBy(courseBoard.id,
+                courseBoard.title,
+                user.name,
+                courseBoard.createdAt)
             .fetch()
 
         return results.stream()
@@ -40,11 +45,11 @@ class CustomCourseBoardRepositoryImpl(
             .toList()
     }
 
-    override fun findCourseBoardDetailById(courseId: Long): Optional<BoardDetailResponse> {
+    override fun findCourseBoardDetailById(courseId: Long): BoardDetailResponse? {
         val tuple = queryFactory.select(
             courseBoard.id,
             courseBoard.title,
-            courseBoard.readCount,
+            courseReadCount.id.count(),
             courseBoard.content,
             user.name,
             courseBoard.createdAt,
@@ -52,17 +57,22 @@ class CustomCourseBoardRepositoryImpl(
         )
             .from(courseBoard)
             .innerJoin(user).on(courseBoard.user.eq(user))
+            .leftJoin(courseReadCount).on(courseReadCount.courseBoardId.eq(courseBoard.id))
             .where(courseBoard.id.eq(courseId))
+            .groupBy(courseBoard.id,
+                courseBoard.title,
+                courseBoard.content,
+                user.name,
+                courseBoard.createdAt,
+                courseBoard.user.id)
             .fetchOne()
 
-        if (tuple == null) {
-            return Optional.empty() // 결과가 없을 경우 빈 Optional 반환
+        return if(tuple == null) null else {
+            val currentUser = findCurrentUser()
+
+
+            convertToBoardDetailResponse(tuple, currentUser)
         }
-
-        val currentUser = findCurrentUser()
-        val boardDetailResponse = convertToBoardDetailResponse(tuple, currentUser)
-
-        return Optional.ofNullable(boardDetailResponse)
     }
 
     override fun findPaginationInfo(courseId: Long, boardType: CommonBoardType): List<PagingResponse> {
@@ -78,19 +88,19 @@ class CustomCourseBoardRepositoryImpl(
             """.trimIndent()
 
         val role = getRole(boardType)
-        val results: MutableList<Long?> = entityManager.createNativeQuery(sql)
+        val results: MutableList<Long?> = (entityManager.createNativeQuery(sql)
             .setParameter("courseId", courseId)
             .setParameter("role", role)
-            .resultList as MutableList<Long?>
+            .resultList as MutableList<Long?>).apply {
 
-        results.add(0, null)
+            add(0, null)
+        }
         val index = AtomicInteger(1)
 
         return results.stream().map { result: Long? ->
-            if (result == null) {
-                return@map PagingResponse.of(index.getAndIncrement().toLong(), null as Long?) // null인 경우
-            } else {
-                return@map PagingResponse.of(index.getAndIncrement().toLong(), result) // boardId 값
+            when (result) {
+                null -> return@map PagingResponse.of(index.getAndIncrement().toLong(), null as Long?) // null인 경우
+                else -> return@map PagingResponse.of(index.getAndIncrement().toLong(), result) // boardId 값
             }
         }.toList()
     }
@@ -101,12 +111,13 @@ class CustomCourseBoardRepositoryImpl(
             .select(
                 courseBoard.id,
                 courseBoard.title,
-                courseBoard.readCount,
+                courseReadCount.id.count(),
                 user.name,
                 courseBoard.createdAt
             )
             .from(courseBoard)
             .innerJoin(user).on(courseBoard.user.eq(user))
+            .leftJoin(courseReadCount).on((courseReadCount.courseBoardId.eq(courseBoard.id)))
             .where(courseBoard.course.id.eq(courseId))
 
         if (type == CommonBoardType.NOTICE) {
@@ -132,7 +143,7 @@ class CustomCourseBoardRepositoryImpl(
             id = tuple.get(courseBoard.id),
             title = tuple.get(courseBoard.title),
             writer = tuple.get(user.name),
-            readCount = Optional.ofNullable(tuple.get(courseBoard.readCount)).orElse(0L),
+            readCount = tuple.get(courseReadCount.id.count(),) ?: 0L,
             createdAt = tuple.get(courseBoard.createdAt)
         )
 
@@ -141,14 +152,14 @@ class CustomCourseBoardRepositoryImpl(
         BoardDetailResponse.of(
             id = tuple.get(courseBoard.id),
             title = tuple.get(courseBoard.title),
-            readCount = Optional.ofNullable(tuple.get(courseBoard.readCount)).orElse(0L),
+            readCount = tuple.get(courseReadCount.id.count(),) ?: 0L,
             content = tuple.get(courseBoard.content),
             writer = tuple.get(user.name),
             createdAt = tuple.get(courseBoard.createdAt),
             isAdmin = currentUser!!.role == Role.ADMIN,
+            categoryName = null,
             isMine = tuple.get(courseBoard.user.id) == currentUser.id
         )
-
 
     companion object {
         private const val PAGE_SIZE = 10

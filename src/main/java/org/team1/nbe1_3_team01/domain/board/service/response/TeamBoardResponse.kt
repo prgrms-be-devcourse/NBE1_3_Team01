@@ -7,12 +7,13 @@ import java.time.LocalDateTime
 
 @ToString
 data class TeamBoardResponse (
-    private val id: Long?,
-    private val title: String?,
-    private val writer: String?,
-    private val categoryName: String?,
-    private val createdAt: String?,
-    private val commentCount: Long
+    val id: Long?,
+    val title: String?,
+    val writer: String?,
+    val categoryName: String?,
+    val createdAt: String?,
+    val readCount: Long,
+    val commentCount: Long
 ) {
     companion object {
         fun of(
@@ -21,6 +22,7 @@ data class TeamBoardResponse (
             writer: String?,
             categoryName: String?,
             createdAt: LocalDateTime?,
+            readCount: Long,
             commentCount: Long
         ): TeamBoardResponse =
             TeamBoardResponse(
@@ -29,7 +31,8 @@ data class TeamBoardResponse (
                 writer = writer,
                 categoryName = categoryName,
                 createdAt = DateTimeToStringConverter.convert(createdAt),
-                commentCount = commentCount
+                commentCount = commentCount,
+                readCount = readCount
             )
     }
 }

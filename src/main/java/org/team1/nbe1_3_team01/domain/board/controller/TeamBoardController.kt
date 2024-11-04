@@ -4,12 +4,10 @@ import jakarta.validation.Valid
 import lombok.RequiredArgsConstructor
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.team1.nbe1_3_team01.domain.board.controller.dto.BoardDeleteRequest
-import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardListRequest
-import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardRequest
-import org.team1.nbe1_3_team01.domain.board.controller.dto.TeamBoardUpdateRequest
+import org.team1.nbe1_3_team01.domain.board.controller.dto.*
 import org.team1.nbe1_3_team01.domain.board.service.TeamBoardService
 import org.team1.nbe1_3_team01.domain.board.service.response.BoardDetailResponse
+import org.team1.nbe1_3_team01.domain.board.service.response.PagingResponse
 import org.team1.nbe1_3_team01.domain.board.service.response.TeamBoardResponse
 import org.team1.nbe1_3_team01.global.util.Message
 import org.team1.nbe1_3_team01.global.util.Response
@@ -36,6 +34,21 @@ class TeamBoardController(
         val boardList = teamBoardService.getTeamBoardListByType(request!!)
         return ResponseEntity.ok()
             .body(Response.success(boardList))
+    }
+
+    /**
+     * 페이징 데이터 전달하는 쿼리
+     * 각 페이지와 마지막 boardId값 반환
+     * @param request
+     * @return
+     */
+    @GetMapping("/page")
+    fun getPaginationInfo(
+        @ModelAttribute request: TeamBoardListRequest
+    ): ResponseEntity<Response<List<PagingResponse?>?>> {
+        val response = teamBoardService.getPaginationInfo(request)
+        return ResponseEntity.ok()
+            .body(Response.success(response))
     }
 
     /**

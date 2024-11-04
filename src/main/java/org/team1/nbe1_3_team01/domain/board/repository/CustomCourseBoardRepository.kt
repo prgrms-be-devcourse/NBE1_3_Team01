@@ -9,7 +9,7 @@ import java.util.*
 interface CustomCourseBoardRepository {
     fun findAllCourseBoard(type: CommonBoardType, courseId: Long, boardId: Long?): List<CourseBoardResponse>
 
-    fun findCourseBoardDetailById(courseId: Long): Optional<BoardDetailResponse>
+    fun findCourseBoardDetailById(courseId: Long): BoardDetailResponse?
 
     fun findPaginationInfo(courseId: Long, boardType: CommonBoardType): List<PagingResponse?>?
 }

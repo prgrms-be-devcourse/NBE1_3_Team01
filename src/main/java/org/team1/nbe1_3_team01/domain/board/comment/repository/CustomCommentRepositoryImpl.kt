@@ -21,7 +21,7 @@ class CustomCommentRepositoryImpl(
     override fun getCommentsByBoardId(boardId: Long?, lastCommentId: Long?): List<CommentResponse> {
         val initialQuery = queryFactory.select(
             comment.id,
-            user.username,
+            user.name,
             comment.content,
             comment.createdAt,
             user.id
@@ -59,7 +59,7 @@ class CustomCommentRepositoryImpl(
             return tuples.stream().map { tuple: Tuple ->
                 of(
                     tuple.get(comment.id),
-                    tuple.get(user.username),
+                    tuple.get(user.name),
                     tuple.get(comment.content),
                     tuple.get(comment.createdAt),
                     currentUser!!.role == Role.ADMIN,
