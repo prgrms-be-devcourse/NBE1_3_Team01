@@ -27,11 +27,11 @@ class AttendanceCommandService(
     ): AttendanceIdResponse {
         // validate
         val registrant: User = getCurrentUser(registrantName)
-        attendanceReader.getList(registrant.id!!)
+        attendanceReader.getList(registrant.id)
             .forEach { it.validateCanRegister() }
 
         // register
-        val attendanceId: Long = attendanceRegistrar.register(registrant.id!!, attendanceCreateRequest)
+        val attendanceId: Long = attendanceRegistrar.register(registrant.id, attendanceCreateRequest)
 
         // parse to response
         return AttendanceIdResponse.from(attendanceId)
@@ -44,7 +44,7 @@ class AttendanceCommandService(
         // validate
         val currentUser: User = getCurrentUser(currentUsername)
         val attendance: Attendance = attendanceReader.get(attendanceUpdateRequest.id)
-        attendance.validateRegistrant(currentUser.id!!)
+        attendance.validateRegistrant(currentUser.id)
         attendance.validatePending()
 
         // update
@@ -68,7 +68,7 @@ class AttendanceCommandService(
         val currentUser: User = getCurrentUser(currentUsername)
 
         val attendance: Attendance = attendanceReader.get(attendanceId)
-        attendance.validateRegistrant(currentUser.id!!)
+        attendance.validateRegistrant(currentUser.id)
         attendance.validatePending()
 
         // delete
