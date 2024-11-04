@@ -1,63 +1,46 @@
-package org.team1.nbe1_3_team01.domain.calendar.entity;
+package org.team1.nbe1_3_team01.domain.calendar.entity
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import org.team1.nbe1_3_team01.domain.calendar.controller.dto.ScheduleUpdateRequest;
-import org.team1.nbe1_3_team01.domain.group.entity.Team;
+import jakarta.persistence.*
+import org.team1.nbe1_3_team01.domain.group.entity.Team
+import java.time.LocalDateTime
 
 @Entity
-@Getter
 @Table(name = "team_schedule")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TeamSchedule {
+class TeamSchedule(
+
+    @Column(length = 50)
+    var name: String,
+
+    @Enumerated(value = EnumType.STRING)
+    var scheduleType: ScheduleType,
+
+    var startAt: LocalDateTime,
+
+    var endAt: LocalDateTime,
+
+    var description: String,
+
+    @JoinColumn(name = "team_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    val team: Team
+) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    var id: Long = 0L
+        protected set
 
-    @Column(length = 50)
-    private String name;
-
-    @Enumerated(value = EnumType.STRING)
-    private ScheduleType scheduleType;
-
-    private LocalDateTime startAt;
-
-    private LocalDateTime endAt;
-
-    private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
-    private Team team;
-
-    @Builder
-    private TeamSchedule(
-            Team team,
-            String name,
-            ScheduleType scheduleType,
-            LocalDateTime startAt,
-            LocalDateTime endAt,
-            String description) {
-        this.team = team;
-        this.name = name;
-        this.scheduleType = scheduleType;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.description = description;
-        team.addTeamScheDule(this);
-    }
-
-    public void update(ScheduleUpdateRequest scheduleUpdateRequest) {
-        this.name = scheduleUpdateRequest.name();
-        this.scheduleType = scheduleUpdateRequest.scheduleType();
-        this.startAt = scheduleUpdateRequest.startAt();
-        this.endAt = scheduleUpdateRequest.endAt();
-        this.description = scheduleUpdateRequest.description();
+    fun update(
+        name: String,
+        scheduleType: ScheduleType,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+        description: String
+    ) {
+        this.name = name
+        this.scheduleType = scheduleType
+        this.startAt = startAt
+        this.endAt = endAt
+        this.description = description
     }
 }

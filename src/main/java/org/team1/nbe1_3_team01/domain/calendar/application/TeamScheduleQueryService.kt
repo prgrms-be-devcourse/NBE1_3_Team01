@@ -1,35 +1,32 @@
-package org.team1.nbe1_3_team01.domain.calendar.application;
+package org.team1.nbe1_3_team01.domain.calendar.application
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.SCHEDULE_NOT_FOUND;
-
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.calendar.application.port.TeamScheduleRepository;
-import org.team1.nbe1_3_team01.domain.calendar.entity.TeamSchedule;
-import org.team1.nbe1_3_team01.domain.calendar.application.response.ScheduleResponse;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import lombok.RequiredArgsConstructor
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.calendar.application.port.TeamScheduleRepository
+import org.team1.nbe1_3_team01.domain.calendar.application.response.ScheduleResponse
+import org.team1.nbe1_3_team01.domain.calendar.entity.TeamSchedule
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
-public class TeamScheduleQueryService {
+class TeamScheduleQueryService(
+    private val teamScheduleRepository: TeamScheduleRepository
+) {
 
-    private final TeamScheduleRepository teamScheduleRepository;
+    fun getTeamSchedules(teamId: Long): List<ScheduleResponse> {
+        val teamSchedules: List<TeamSchedule> = teamScheduleRepository.findByTeamId(teamId)
 
-    public List<ScheduleResponse> getTeamSchedules(Long teamId) {
-        List<TeamSchedule> teamSchedules = teamScheduleRepository.findByTeamId(teamId);
-
-        return teamSchedules.stream()
-                .map(ScheduleResponse::from)
-                .toList();
+        return teamSchedules
+            .map { teamSchedule: TeamSchedule -> ScheduleResponse.from(teamSchedule) }
+            .toList()
     }
 
-    public ScheduleResponse getTeamSchedule(Long scheduleId) {
-        TeamSchedule teamSchedule = teamScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new AppException(SCHEDULE_NOT_FOUND));
+    fun getTeamSchedule(scheduleId: Long): ScheduleResponse {
+        val teamSchedule: TeamSchedule = teamScheduleRepository!!.findById(scheduleId)
+            .orElseThrow { AppException(ErrorCode.SCHEDULE_NOT_FOUND) }
 
-        return ScheduleResponse.from(teamSchedule);
+        return ScheduleResponse.from(teamSchedule)
     }
 }

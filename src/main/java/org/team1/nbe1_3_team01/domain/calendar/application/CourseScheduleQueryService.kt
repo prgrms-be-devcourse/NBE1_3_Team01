@@ -1,35 +1,31 @@
-package org.team1.nbe1_3_team01.domain.calendar.application;
+package org.team1.nbe1_3_team01.domain.calendar.application
 
-import static org.team1.nbe1_3_team01.global.util.ErrorCode.SCHEDULE_NOT_FOUND;
-
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.team1.nbe1_3_team01.domain.calendar.application.port.CourseScheduleRepository;
-import org.team1.nbe1_3_team01.domain.calendar.entity.CourseSchedule;
-import org.team1.nbe1_3_team01.domain.calendar.application.response.ScheduleResponse;
-import org.team1.nbe1_3_team01.global.exception.AppException;
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.team1.nbe1_3_team01.domain.calendar.application.port.CourseScheduleRepository
+import org.team1.nbe1_3_team01.domain.calendar.application.response.ScheduleResponse
+import org.team1.nbe1_3_team01.domain.calendar.entity.CourseSchedule
+import org.team1.nbe1_3_team01.global.exception.AppException
+import org.team1.nbe1_3_team01.global.util.ErrorCode
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
-public class CourseScheduleQueryService {
+class CourseScheduleQueryService(
+    private val courseScheduleRepository: CourseScheduleRepository
+) {
 
-    private final CourseScheduleRepository courseScheduleRepository;
+    fun getCourseSchedules(courseId: Long): List<ScheduleResponse> {
+        val courseSchedules: List<CourseSchedule> = courseScheduleRepository.findByCourseId(courseId)
 
-    public List<ScheduleResponse> getCourseSchedules(Long courseId) {
-        List<CourseSchedule> courseSchedules = courseScheduleRepository.findByCourseId(courseId);
-
-        return courseSchedules.stream()
-                .map(ScheduleResponse::from)
-                .toList();
+        return courseSchedules
+            .map { courseSchedule: CourseSchedule -> ScheduleResponse.from(courseSchedule) }
+            .toList()
     }
 
-    public ScheduleResponse getCourseSchedule(Long scheduleId) {
-        CourseSchedule courseSchedule = courseScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new AppException(SCHEDULE_NOT_FOUND));
+    fun getCourseSchedule(scheduleId: Long): ScheduleResponse {
+        val courseSchedule: CourseSchedule = courseScheduleRepository.findById(scheduleId)
+            .orElseThrow { AppException(ErrorCode.SCHEDULE_NOT_FOUND) }
 
-        return ScheduleResponse.from(courseSchedule);
+        return ScheduleResponse.from(courseSchedule)
     }
 }

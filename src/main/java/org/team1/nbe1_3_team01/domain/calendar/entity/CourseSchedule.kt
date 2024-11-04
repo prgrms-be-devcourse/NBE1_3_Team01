@@ -1,57 +1,41 @@
-package org.team1.nbe1_3_team01.domain.calendar.entity;
+package org.team1.nbe1_3_team01.domain.calendar.entity
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.team1.nbe1_3_team01.domain.calendar.controller.dto.ScheduleUpdateRequest;
-import org.team1.nbe1_3_team01.domain.user.entity.Course;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*
+import org.team1.nbe1_3_team01.domain.user.entity.Course
+import java.time.LocalDateTime
 
 @Entity
-@Getter
 @Table(name = "course_schedule")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CourseSchedule {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+class CourseSchedule(
 
     @Column(length = 50)
-    private String name;
+    var name: String,
 
-    private LocalDateTime startAt;
+    var startAt: LocalDateTime,
 
-    private LocalDateTime endAt;
+    var endAt: LocalDateTime,
 
-    private String description;
+    var description: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
-    private Course course;
+    var course: Course
+) {
 
-    @Builder
-    private CourseSchedule(
-            Course course,
-            String name,
-            LocalDateTime startAt,
-            LocalDateTime endAt,
-            String description) {
-        this.course = course;
-        this.name = name;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.description = description;
-        course.addCourseSchedule(this);
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L
+        protected set
 
-    public void update(ScheduleUpdateRequest scheduleUpdateRequest) {
-        this.name = scheduleUpdateRequest.name();
-        this.startAt = scheduleUpdateRequest.startAt();
-        this.endAt = scheduleUpdateRequest.endAt();
-        this.description = scheduleUpdateRequest.description();
+    fun update(
+        name: String,
+        startAt: LocalDateTime,
+        endAt: LocalDateTime,
+        description: String
+    ) {
+        this.name = name
+        this.startAt = startAt
+        this.endAt = endAt
+        this.description = description
     }
 }

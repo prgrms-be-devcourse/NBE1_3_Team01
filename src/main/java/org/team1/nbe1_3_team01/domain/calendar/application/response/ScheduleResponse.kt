@@ -1,39 +1,39 @@
-package org.team1.nbe1_3_team01.domain.calendar.application.response;
+package org.team1.nbe1_3_team01.domain.calendar.application.response
 
-import java.time.LocalDateTime;
-import lombok.Builder;
-import org.team1.nbe1_3_team01.domain.calendar.entity.CourseSchedule;
-import org.team1.nbe1_3_team01.domain.calendar.entity.ScheduleType;
-import org.team1.nbe1_3_team01.domain.calendar.entity.TeamSchedule;
+import org.team1.nbe1_3_team01.domain.calendar.entity.CourseSchedule
+import org.team1.nbe1_3_team01.domain.calendar.entity.ScheduleType
+import org.team1.nbe1_3_team01.domain.calendar.entity.TeamSchedule
+import java.time.LocalDateTime
 
-@Builder
-public record ScheduleResponse(
-        Long id,
-        String name,
-        ScheduleType scheduleType,
-        LocalDateTime startAt,
-        LocalDateTime endAt,
-        String description
+data class ScheduleResponse(
+    val id: Long,
+    val name: String,
+    val scheduleType: ScheduleType?,
+    val startAt: LocalDateTime,
+    val endAt: LocalDateTime,
+    val description: String
 ) {
+    companion object {
+        fun from(courseSchedule: CourseSchedule): ScheduleResponse {
+            return ScheduleResponse(
+                id = courseSchedule.id,
+                name = courseSchedule.name,
+                scheduleType = null,
+                startAt = courseSchedule.startAt,
+                endAt = courseSchedule.endAt,
+                description = courseSchedule.description
+            )
+        }
 
-    public static ScheduleResponse from(CourseSchedule courseSchedule) {
-        return ScheduleResponse.builder()
-                .id(courseSchedule.getId())
-                .name(courseSchedule.getName())
-                .startAt(courseSchedule.getStartAt())
-                .endAt(courseSchedule.getEndAt())
-                .description(courseSchedule.getDescription())
-                .build();
-    }
-
-    public static ScheduleResponse from(TeamSchedule teamSchedule) {
-        return ScheduleResponse.builder()
-                .id(teamSchedule.getId())
-                .scheduleType(teamSchedule.getScheduleType())
-                .name(teamSchedule.getName())
-                .startAt(teamSchedule.getStartAt())
-                .endAt(teamSchedule.getEndAt())
-                .description(teamSchedule.getDescription())
-                .build();
+        fun from(teamSchedule: TeamSchedule): ScheduleResponse {
+            return ScheduleResponse(
+                id = teamSchedule.id,
+                name = teamSchedule.name,
+                scheduleType = teamSchedule.scheduleType,
+                startAt = teamSchedule.startAt,
+                endAt = teamSchedule.endAt,
+                description = teamSchedule.description
+            )
+        }
     }
 }
