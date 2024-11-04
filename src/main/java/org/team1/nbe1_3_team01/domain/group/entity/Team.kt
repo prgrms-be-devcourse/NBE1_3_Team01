@@ -63,4 +63,9 @@ class Team(
         categories.add(category)
     }
 
+    fun assignBelonging(belonging: Belonging) {
+        this.belongings.add(belonging)
+        belonging.assignTeam(this)
+    }
+
 }
