@@ -9,7 +9,6 @@ import org.team1.nbe1_3_team01.domain.user.controller.request.UserDeleteRequest
 import org.team1.nbe1_3_team01.domain.user.controller.request.UserSignUpRequest
 import org.team1.nbe1_3_team01.domain.user.controller.request.UserUpdateRequest
 import org.team1.nbe1_3_team01.domain.user.entity.Course
-import org.team1.nbe1_3_team01.domain.user.entity.QUser.user
 import org.team1.nbe1_3_team01.domain.user.entity.User
 import org.team1.nbe1_3_team01.domain.user.repository.CourseRepository
 import org.team1.nbe1_3_team01.domain.user.repository.UserRepository

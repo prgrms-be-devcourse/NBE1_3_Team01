@@ -19,7 +19,7 @@ class SignupPageController(
      */
     @GetMapping("/sign-up")
     fun verifyUUID(
-        @RequestParam code: String?,
+        @RequestParam code: String,
         @RequestParam courseId: Long,
         model: Model
     ): String {
