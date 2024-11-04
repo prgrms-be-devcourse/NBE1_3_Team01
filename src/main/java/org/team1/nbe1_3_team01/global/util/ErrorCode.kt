@@ -68,11 +68,13 @@ enum class ErrorCode(
     TEAM_EXISTING_MEMBER(HttpStatus.CONFLICT, "이미 해당 팀에 존재하는 회원입니다."),
     LEADER_BELONGING_NOT_FOUND(HttpStatus.NOT_FOUND, "팀장 소속 정보를 찾아오는 중 오류가 발생했습니다."),
     CANNOT_DELETE_LEADER(HttpStatus.BAD_REQUEST, "팀장을 삭제할 수는 없습니다. 삭제하시려면 팀을 삭제하세요."),
+    INVALID_TEAM_ID(HttpStatus.BAD_REQUEST, "팀 id가 유효하지 않습니다."),
 
     //course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "코스가 존재하지 않습니다."),
     COURSE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 코스명입니다."),
     COURSE_AUTH_DENIED(HttpStatus.FORBIDDEN, "코스에 소속된 유저만 접근할 수 있습니다."),
+    INVALID_COURSE_ID(HttpStatus.BAD_REQUEST, "코스 id가 유효하지 않습니다."),
 
     //user
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
