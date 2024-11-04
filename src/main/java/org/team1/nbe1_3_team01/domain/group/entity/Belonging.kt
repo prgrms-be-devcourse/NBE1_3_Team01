@@ -20,7 +20,7 @@ class Belonging(
     val id: Long? = null,
 
     @Column(columnDefinition = "TINYINT(1)")
-    val isOwner: Boolean,
+    var isOwner: Boolean,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.team1.nbe1_3_team01.domain.group.controller.request.*
+import org.team1.nbe1_3_team01.domain.group.entity.TeamType
 import org.team1.nbe1_3_team01.domain.group.service.TeamService
 import org.team1.nbe1_3_team01.domain.group.service.response.TeamResponse
 import org.team1.nbe1_3_team01.domain.user.service.response.UserDetailsResponse
@@ -49,6 +50,24 @@ class TeamController (
             .body(
                 Response.success(
                     teamService.teamNameUpdate(teamNameUpdateRequest)
+                ))
+    }
+
+    @PatchMapping("/admin/leader")
+    fun updateProjectTeamLeader(@RequestBody teamLeaderUpdateRequest: @Valid TeamLeaderUpdateRequest): ResponseEntity<Response<Message>> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(
+                Response.success(
+                    teamService.teamLeaderUpdate(teamLeaderUpdateRequest, TeamType.PROJECT)
+                ))
+    }
+
+    @PatchMapping("/leader")
+    fun updateStudyTeamLeader(@RequestBody teamLeaderUpdateRequest: @Valid TeamLeaderUpdateRequest): ResponseEntity<Response<Message>> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(
+                Response.success(
+                    teamService.teamLeaderUpdate(teamLeaderUpdateRequest, TeamType.STUDY)
                 ))
     }
 
