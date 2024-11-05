@@ -110,7 +110,7 @@ class CustomTeamBoardRepositoryImpl(
                 SELECT team_board.id as id, ROW_NUMBER() OVER (ORDER BY team_board.id DESC) AS row_num
                 FROM team_board
                 WHERE team_board.id = :teamId
-                AND team_board.categoryId = :categoryId
+                AND team_board.category_id = :categoryId
                 ) subquery WHERE subquery.row_num % 10 = 1 and subquery.row_num > 10
                 ORDER BY subquery.row_num DESC
             """.trimIndent()
