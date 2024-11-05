@@ -18,10 +18,10 @@ class EmailController(private val publisher: ApplicationEventPublisher) {
 
     @PostMapping("/admin")
     @Throws(MessagingException::class)
-    fun registerEmails(@RequestBody emailsRequest: @Valid EmailsRequest): ResponseEntity<Response<String>> {
+    fun registerEmails(@RequestBody @Valid emailsRequest: EmailsRequest): ResponseEntity<Response<String>> {
         val courseId = emailsRequest.courseId
-        for (email in emailsRequest.emails) {
-            publisher.publishEvent(EmailSendEvent(email, courseId))
+        for (emailRequest in emailsRequest.emails) {
+            publisher.publishEvent(EmailSendEvent(emailRequest.email, courseId))
         }
         return ResponseEntity.ok().body(Response.success("메일 전송 완료"))
     }

@@ -4,6 +4,7 @@ import jakarta.validation.Valid
 import lombok.extern.slf4j.Slf4j
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.team1.nbe1_3_team01.domain.user.controller.request.UserDeleteRequest
 import org.team1.nbe1_3_team01.domain.user.controller.request.UserSignUpRequest
@@ -26,7 +27,7 @@ class UserController(
      * 회원가입
      */
     @PostMapping("/sign-up")
-    fun signUp(@RequestBody userSignUpRequest: @Valid UserSignUpRequest): ResponseEntity<Response<UserIdResponse>> {
+    fun signUp(@RequestBody @Valid userSignUpRequest: UserSignUpRequest): ResponseEntity<Response<UserIdResponse>> {
         val userIdResponse = userService.signUp(userSignUpRequest)
         emailService.deleteByEmail(userSignUpRequest.email)
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.success(userIdResponse))
@@ -46,7 +47,7 @@ class UserController(
      * 회원 탈퇴
      */
     @DeleteMapping
-    fun delete(@RequestBody userDeleteRequest: UserDeleteRequest): ResponseEntity<Unit> {
+    fun delete(@RequestBody userDeleteRequest: UserDeleteRequest): ResponseEntity<Void> {
         userService.delete(userDeleteRequest)
         return ResponseEntity.noContent().build()
     }
@@ -66,7 +67,7 @@ class UserController(
      * 회원 정보 수정
      */
     @PatchMapping
-    fun update(@RequestBody userUpdateRequest: @Valid UserUpdateRequest): ResponseEntity<Response<UserIdResponse>> {
+    fun update(@RequestBody @Valid userUpdateRequest: UserUpdateRequest): ResponseEntity<Response<UserIdResponse>> {
         val userIdResponse = userService.update(userUpdateRequest)
         return ResponseEntity.ok().body(Response.success(userIdResponse))
     }
