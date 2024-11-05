@@ -33,6 +33,18 @@ class AttendanceAdminController(
         )
 
     /**
+     * 관리자 - 수강생 출결 요청 모두 보기
+     */
+    @GroupAuth(GroupAuth.Role.ADMIN)
+    @GetMapping("/students")
+    fun findStudentAttendances(
+        @PageableDefault pageable: Pageable
+    ): ResponseEntity<Response<AttendancePage>> =
+        ResponseEntity.ok(
+            Response.success(attendanceQueryService.getStudentAttendances(pageable))
+        )
+
+    /**
      * 관리자 - 출결 요청 상세 내역 보기
      */
     @GroupAuth(GroupAuth.Role.ADMIN)

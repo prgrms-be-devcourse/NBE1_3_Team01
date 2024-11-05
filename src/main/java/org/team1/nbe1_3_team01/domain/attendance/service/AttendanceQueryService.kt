@@ -19,6 +19,11 @@ class AttendanceQueryService(
         return AttendancePage.from(responses)
     }
 
+    fun getStudentAttendances(pageable: Pageable): AttendancePage {
+        val responses: Page<AttendanceResponse> = attendancePersistence.findStudentAttendances(pageable);
+        return AttendancePage.from(responses)
+    }
+
     fun getMyAttendances(pageable: Pageable, currentUsername: String): AttendancePage {
         val responses: Page<AttendanceResponse> = attendancePersistence.findByUsername(pageable, currentUsername)
         return AttendancePage.from(responses)
