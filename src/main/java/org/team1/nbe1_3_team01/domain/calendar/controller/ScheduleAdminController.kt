@@ -70,7 +70,7 @@ class ScheduleAdminController(
     @GroupAuth(role = GroupAuth.Role.ADMIN)
     @GetMapping("/commons")
     fun getNoticeSchedules(
-        @RequestParam(name = "course-id") courseId: Long
+        @RequestParam courseId: Long
     ): ResponseEntity<Response<List<ScheduleResponse>>> {
         return ResponseEntity.ok(
             Response.success(
@@ -99,7 +99,7 @@ class ScheduleAdminController(
      */
     @PostMapping
     fun registSchedule(
-        @RequestParam(name = "course-id") courseId: Long,
+        @RequestParam courseId: Long,
         @RequestBody scheduleCreateRequest: ScheduleCreateRequest
     ): ResponseEntity<Void> {
         val scheduleIdResponse =
