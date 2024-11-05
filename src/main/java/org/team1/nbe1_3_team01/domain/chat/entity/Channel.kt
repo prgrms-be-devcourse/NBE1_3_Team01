@@ -43,4 +43,10 @@ class Channel(
         participants.add(participant)
         participant.channel = this // 양방향 관계를 위해 채널을 참가자에 설정
     }
+
+    override fun toString(): String {
+        return "Channel(channelName='$channelName', id=$id, createdAt=$createdAt, participants=$participants)"
+    }
+
+
 }

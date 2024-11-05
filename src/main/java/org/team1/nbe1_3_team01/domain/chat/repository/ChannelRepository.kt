@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository
 import org.team1.nbe1_3_team01.domain.chat.entity.Channel
 
 @Repository
-interface ChannelRepository : JpaRepository<Channel?, Long?> {
+interface ChannelRepository : JpaRepository<Channel, Long> {
+
     @Query("SELECT c.channelName FROM Channel c")
     fun findAllChannelName(): List<String?>?
 }
