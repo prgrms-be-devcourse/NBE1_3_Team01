@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.team1.nbe1_3_team01.domain.group.controller.request.*
 import org.team1.nbe1_3_team01.domain.group.entity.Belonging
-import org.team1.nbe1_3_team01.domain.group.entity.QTeam.team
-import org.team1.nbe1_3_team01.domain.group.entity.Team
 import org.team1.nbe1_3_team01.domain.group.entity.TeamType
 import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository
 import org.team1.nbe1_3_team01.domain.group.repository.TeamRepository
@@ -68,6 +66,14 @@ class TeamService(
         if (!team.creationWaiting) throw AppException(ErrorCode.TEAM_NOT_WAITING)
         team.creationWaiting = false
         return Message(teamRepository.save(team).id.toString())
+    }
+
+    fun studyTeamCreationReject(teamApprovalUpdateRequest: TeamApprovalUpdateRequest): Message {
+        val team = teamRepository.findByIdOrNull(teamApprovalUpdateRequest.teamId)
+            ?: throw AppException(ErrorCode.TEAM_NOT_FOUND)
+        if (!team.creationWaiting) throw AppException(ErrorCode.TEAM_NOT_WAITING)
+        teamRepository.delete(team)
+        return Message("거절 및 삭제 완료")
     }
 
     fun teamNameUpdate(teamNameUpdateRequest: TeamNameUpdateRequest): Message {

@@ -44,6 +44,15 @@ class TeamController (
                 ))
     }
 
+    @PostMapping("/admin/rejection")
+    fun rejectStudyTeamCreation(@RequestBody teamApprovalUpdateRequest: @Valid TeamApprovalUpdateRequest): ResponseEntity<Response<Message>> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(
+                Response.success(
+                    teamService.studyTeamCreationReject(teamApprovalUpdateRequest)
+                ))
+    }
+
     @PatchMapping("/name")
     fun updateTeamName(@RequestBody teamNameUpdateRequest: @Valid TeamNameUpdateRequest): ResponseEntity<Response<Message>> {
         return ResponseEntity.status(HttpStatus.OK)
