@@ -8,6 +8,8 @@ interface AttendancePersistence {
 
     fun findAll(pageable: Pageable): Page<AttendanceResponse>
 
+    fun findStudentAttendances(pageable: Pageable): Page<AttendanceResponse>
+
     fun findByUsername(pageable: Pageable, username: String): Page<AttendanceResponse>
 
     fun findById(id: Long): AttendanceResponse?
