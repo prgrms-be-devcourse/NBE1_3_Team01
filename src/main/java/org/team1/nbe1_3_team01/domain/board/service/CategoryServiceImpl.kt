@@ -10,6 +10,7 @@ import org.team1.nbe1_3_team01.domain.board.repository.CategoryRepository
 import org.team1.nbe1_3_team01.domain.board.service.response.CategoryResponse
 import org.team1.nbe1_3_team01.domain.board.service.valid.CategoryValidator
 import org.team1.nbe1_3_team01.domain.group.entity.Belonging
+import org.team1.nbe1_3_team01.domain.group.entity.QBelonging.belonging
 import org.team1.nbe1_3_team01.domain.group.repository.BelongingRepository
 import org.team1.nbe1_3_team01.domain.group.repository.TeamRepository
 import org.team1.nbe1_3_team01.global.exception.AppException
@@ -23,7 +24,7 @@ import org.team1.nbe1_3_team01.global.util.SecurityUtil
 class CategoryServiceImpl(
     private val categoryRepository: CategoryRepository,
     private val teamRepository: TeamRepository,
-    private val belongingRepository: BelongingRepository,
+    private val belongingRepository: BelongingRepository
 
 ) : CategoryService {
 
@@ -70,10 +71,10 @@ class CategoryServiceImpl(
      */
     private fun validTeamLeader(teamId: Long) {
         val currentUsername = SecurityUtil.getCurrentUsername()
-        val belonging: Belonging = (belongingRepository.findByTeam_IdAndUser_Username(
-            teamId,
-            currentUsername
-        ) ?: AppException(ErrorCode.BELONGING_NOT_FOUND)) as Belonging
+        val belonging: Belonging = belongingRepository.findByTeam_IdAndUser_Username(
+            teamId = teamId,
+            username = currentUsername
+        ) ?: throw AppException(ErrorCode.NOT_TEAM_LEADER)
 
         CategoryValidator.validateTeamLeader(belonging)
     }
