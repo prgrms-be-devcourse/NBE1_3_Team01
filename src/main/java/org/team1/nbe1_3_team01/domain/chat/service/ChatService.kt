@@ -19,11 +19,10 @@ import org.team1.nbe1_3_team01.global.util.ErrorCode
 import java.time.LocalDateTime
 
 @Service
-@RequiredArgsConstructor
-class ChatService {
-    private val chatRepository: ChatRepository? = null
-    private val participantRepository: ParticipantRepository? = null
-
+class ChatService (
+    private val chatRepository: ChatRepository,
+    private val participantRepository: ParticipantRepository)
+{
     // 채팅 보내기
     @Transactional
     fun sendMessage(channelId: Long, msgRequest: ChatMessageRequest): ChatMessageResponse {
@@ -33,7 +32,7 @@ class ChatService {
                 actionType = msgRequest.actionType ?: ChatActionType.SEND_MESSAGE
             )
 
-            val participant = participantRepository?.findByUserIdAndChannelId(updatedRequest.userId, channelId)
+            val participant = participantRepository.findByUserIdAndChannelId(updatedRequest.userId, channelId)
                 ?.orElseThrow { AppException(ErrorCode.PARTICIPANTS_NOT_FOUND) }
 
             val chat = Chat(
@@ -42,7 +41,7 @@ class ChatService {
                 createdAt = LocalDateTime.now(),
                 participant = participant
             )
-            chatRepository?.save(chat)
+            chatRepository.save(chat)
 
             return ChatMessageResponse(
                 channelId = channelId,
@@ -77,8 +76,8 @@ class ChatService {
     // 채팅 수정하기
     fun updateMessage(chatId: Long?, userId: Long?, newChatMessage: String): Long {
         // 채팅 메시지 조회
-        val chat = chatRepository?.findById(chatId)
-            ?.orElseThrow { AppException(ErrorCode.NOT_CHAT_MESSAGE) }
+        val chat = chatRepository.findById(chatId)
+            .orElseThrow { AppException(ErrorCode.NOT_CHAT_MESSAGE) }
 
         // 사용자가 해당 채팅 메시지의 작성자인지 확인
         if (chat?.participant?.user?.id != userId) {
@@ -97,15 +96,15 @@ class ChatService {
     fun deleteMessage(chatId: Long?, userId: Long?) {
         // chat 확인
         val chat: Chat = chatId?.let {
-            chatRepository?.findById(it)
-                ?.orElseThrow { AppException(ErrorCode.NOT_CHAT_MESSAGE) }
+            chatRepository.findById(it)
+                .orElseThrow { AppException(ErrorCode.NOT_CHAT_MESSAGE) }
         } ?: throw AppException(ErrorCode.NOT_CHAT_MESSAGE) // chatId가 null인 경우 예외 발생
 
         // 메시지 보낸 사람과 동일인인지 확인
         if (chat.participant?.user?.id != userId) {
             throw AppException(ErrorCode.USER_NOT_AUTHORIZE)
         }
-        chatRepository?.delete(chat)
+        chatRepository.delete(chat)
     }
 
 //    // 채팅 만들기
@@ -136,7 +135,7 @@ class ChatService {
     // 채팅 불러오기
     @Transactional(readOnly = true)
     fun getChatsByChannelId(channelId: Long): List<ChatResponse> {
-        val chats: List<Chat> = chatRepository?.findByParticipant_Channel_Id(channelId)
+        val chats: List<Chat> = chatRepository.findByParticipant_Channel_Id(channelId)
             ?.filterNotNull() // null 이 아닌 Chat만 필터링
             ?: throw AppException(ErrorCode.NOT_CHAT)
 
