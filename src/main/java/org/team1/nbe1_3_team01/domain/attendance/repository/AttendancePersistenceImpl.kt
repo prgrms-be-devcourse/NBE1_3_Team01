@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import org.team1.nbe1_3_team01.domain.attendance.controller.response.AttendanceResponse
+import org.team1.nbe1_3_team01.domain.attendance.entity.ApprovalState
 import org.team1.nbe1_3_team01.domain.attendance.entity.QAttendance.attendance
 import org.team1.nbe1_3_team01.domain.attendance.service.port.AttendancePersistence
 import org.team1.nbe1_3_team01.domain.user.entity.QUser.user
@@ -41,6 +42,7 @@ class AttendancePersistenceImpl(
             .from(attendance)
             .innerJoin(user).on(attendance.registrant.userId.eq(user.id))
             .where(user.role.eq(Role.USER))
+            .where(attendance.approvalState.eq(ApprovalState.PENDING))
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
