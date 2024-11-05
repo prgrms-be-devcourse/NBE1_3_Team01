@@ -26,18 +26,13 @@ open class ChannelService(
             .filterNotNull()
     }
 
-    // 채널 생성
     @Transactional
     open fun createChannel(channelName: String): Long {
         val creator: User = userChannelUtil.currentUser()
 
-        val channel = Channel.Builder()
-            .channelName(channelName)
-            .build()
-
+        val channel = Channel(channelName)  // Builder 없이 인스턴스 생성
         val savedChannel = channelRepository.save(channel)
 
-        // 참여자 추가
         val participant = Participant(
             user = creator,
             channel = savedChannel,
@@ -46,11 +41,8 @@ open class ChannelService(
             isParticipated = true
         )
 
-        participantRepository.save(participant)
-
         return savedChannel.id!!
     }
-
 
     // 채널 수정
     @Transactional

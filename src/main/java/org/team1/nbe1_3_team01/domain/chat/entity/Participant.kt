@@ -58,4 +58,10 @@ class Participant ( // 기본 생성자 추가
     fun addChat(chat: Chat) {
         this.chats.add(chat)
     }
+
+    override fun toString(): String {
+        return "Participant(userId=$userId, channelId=$channelId, isCreator=$isCreator, participatedAt=$participatedAt, isParticipated=$isParticipated, user=$user, channel=$channel, chats=$chats)"
+    }
+
+
 }

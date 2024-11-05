@@ -12,5 +12,8 @@ interface ParticipantRepository : JpaRepository<Participant?, ParticipantPK?> {
 
     fun findByChannelId(channelId: Long?): List<Participant?>?
 
-    fun findByUserIdAndChannelId(userId: Long?, channelId: Long?): Optional<Participant?>?
+     fun findByUserIdAndChannelId(userId: Long?, channelId: Long?): Optional<Participant?>?
+
+    fun findParticipantByUserIdAndChannelId(userId: Long, channelId: Long): Participant?
+
 }

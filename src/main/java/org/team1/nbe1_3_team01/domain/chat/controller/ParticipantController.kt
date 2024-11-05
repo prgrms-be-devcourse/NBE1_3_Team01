@@ -9,20 +9,25 @@ import org.team1.nbe1_3_team01.domain.chat.controller.request.KickOutRequest
 import org.team1.nbe1_3_team01.domain.chat.entity.ParticipantPK
 import org.team1.nbe1_3_team01.domain.chat.entity.QParticipantPK.participantPK
 import org.team1.nbe1_3_team01.domain.chat.service.ParticipantService
+import org.team1.nbe1_3_team01.domain.chat.service.UserChannelUtil
 import org.team1.nbe1_3_team01.domain.chat.service.response.ChannelResponse
 import org.team1.nbe1_3_team01.domain.chat.service.response.ParticipantResponse
 import org.team1.nbe1_3_team01.global.util.Response
 
 @RequestMapping("/api/participants")
 @RestController
-class ParticipantController(private val participantService: ParticipantService)
+class ParticipantController(private val participantService: ParticipantService,
+    private val userChannelUtil: UserChannelUtil)
 {
     // 참여자가 스스로 방 아이디를 치고 들어오는 경우
     @PostMapping("/join")
     fun joinChannel(@RequestBody channelRequest: ChannelRequest): ResponseEntity<Response<ParticipantResponse>> {
-        val participantResponse = participantService.joinChannel(channelRequest.channelId)
+        // 현재 로그인한 사용자 기준으로 채널 참가 요청 처리
+        val currentUserId = userChannelUtil.currentUser().id
+        val participantResponse = participantService.joinChannel(currentUserId, channelRequest)
         return ResponseEntity.ok().body(Response.success(participantResponse))
     }
+
 
     // 방장(생성자) -> 참여자를 초대
     @PostMapping("/invite")
