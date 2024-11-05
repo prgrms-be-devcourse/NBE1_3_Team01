@@ -173,7 +173,7 @@ class JwtAuthenticationProcessingFilter(
         response.status = errorCode.status.value()
         response.characterEncoding = "UTF-8"
         response.contentType = "text/plain;charset=UTF-8"
-        response.writer.write(errorCode.printMessage())
+        response.writer.write(errorCode.getMessage())
     }
 
 }
