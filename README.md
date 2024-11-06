@@ -1,6 +1,4 @@
-<img width="242" alt="스크린샷 2024-11-06 오전 9 10 21" src="https://github.com/user-attachments/assets/88e1ec6f-4127-4fae-a15b-89e53bc52f6a">
-
-# 🕊️ DevWare
+<img width="242" alt="스크린샷 2024-11-06 오전 9 10 21" src="https://github.com/user-attachments/assets/88e1ec6f-4127-4fae-a15b-89e53bc52f6a"> <br>
 
 <img width="896" alt="스크린샷 2024-11-06 오전 9 14 42" src="https://github.com/user-attachments/assets/b65afe21-9ec0-4114-b144-2471c59cc251">
 
